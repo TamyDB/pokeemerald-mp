@@ -1,0 +1,17 @@
+[Unit]
+Description=Pokemon Emerald ENet overworld relay
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/pokeemerald-server
+ExecStart=%h/pokeemerald-server/build/pc-net/pokeemerald-server 25001
+Restart=on-failure
+RestartSec=3
+NoNewPrivileges=true
+PrivateTmp=true
+MemoryMax=128M
+CPUQuota=100%
+
+[Install]
+WantedBy=default.target

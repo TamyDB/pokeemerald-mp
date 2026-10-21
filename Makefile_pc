@@ -1,0 +1,74 @@
+# Network library for the PC/Android port. The SDL2 port is not in this checkout.
+# Include this file from the port's build, or run: make -f Makefile_pc network
+.DEFAULT_GOAL := network
+PLATFORM ?= linux
+CC ?= cc
+AR ?= ar
+NET_BUILD_DIR ?= build/pc-net
+NET_SOURCES := $(shell find src/net -name '*.c' -print)
+NET_OBJECTS := $(patsubst %.c,$(NET_BUILD_DIR)/%.o,$(NET_SOURCES))
+CPPFLAGS += -DMULTIPLAYER -iquote include -Iinclude/net
+CFLAGS += -std=gnu99
+ifeq ($(PLATFORM),windows)
+LDLIBS += -lws2_32 -lwinmm
+else
+CPPFLAGS += -DHAS_FCNTL=1 -DHAS_POLL=1 -DHAS_SOCKLEN_T=1 -DHAS_INET_PTON=1 -DHAS_INET_NTOP=1 -DHAS_MSGHDR_FLAGS=1
+LDLIBS += -lpthread
+endif
+
+.PHONY: network
+network: $(NET_BUILD_DIR)/libpokeemerald-net.a
+
+$(NET_BUILD_DIR)/libpokeemerald-net.a: $(NET_OBJECTS)
+	$(AR) rcs $@ $^
+
+$(NET_BUILD_DIR)/%.o: %.c
+	@mkdir -p $(dir $@)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -MMD -MP -c $< -o $@
+
+-include $(NET_OBJECTS:.o=.d)
+
+$(NET_BUILD_DIR)/src/net/net_client.o $(NET_BUILD_DIR)/src/net/net_sync.o: include/constants/map_groups.h
+
+include/constants/map_groups.h: data/maps/map_groups.json tools/mapjson/mapjson
+	tools/mapjson/mapjson groups emerald $< data/maps include/constants
+
+tools/mapjson/mapjson:
+	$(MAKE) -C tools/mapjson
+
+$(NET_BUILD_DIR)/src/net/net_sync.o: include/constants/map_event_ids.h
+include/constants/map_event_ids.h: $(wildcard data/maps/*/map.json) tools/mapjson/mapjson
+	tools/mapjson/mapjson event_constants emerald $(filter %.json,$^) $@
+
+.PHONY: test-network
+test-network: $(NET_BUILD_DIR)/sync-test $(NET_BUILD_DIR)/client-test
+	$(NET_BUILD_DIR)/sync-test
+	$(NET_BUILD_DIR)/client-test
+
+$(NET_BUILD_DIR)/sync-test: tests/net/sync_test.c src/net/net_sync.c include/net/net_client.h include/constants/map_groups.h include/constants/map_event_ids.h
+	@mkdir -p $(dir $@)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -UNDEBUG tests/net/sync_test.c src/net/net_sync.c -o $@
+
+
+$(NET_BUILD_DIR)/client-test: tests/net/client_test.c src/net/net_client.c include/net/net_client.h include/constants/map_groups.h
+	@mkdir -p $(dir $@)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -UNDEBUG tests/net/client_test.c src/net/net_client.c -o $@
+
+# Optional integration test: requires permission to open local UDP sockets.
+.PHONY: test-network-loopback
+test-network-loopback: $(NET_BUILD_DIR)/enet-loopback-test
+	$(NET_BUILD_DIR)/enet-loopback-test
+
+$(NET_BUILD_DIR)/enet-loopback-test: tests/net/enet_loopback_test.c $(filter %/enet/win32.o %/enet/unix.o %/enet/protocol.o %/enet/peer.o %/enet/packet.o %/enet/list.o %/enet/host.o %/enet/compress.o %/enet/callbacks.o,$(NET_OBJECTS))
+	$(CC) $(CPPFLAGS) $(CFLAGS) -UNDEBUG $^ $(LDLIBS) -o $@
+
+ENET_OBJECTS := $(filter $(NET_BUILD_DIR)/src/net/enet/%,$(NET_OBJECTS))
+.PHONY: server
+server: $(NET_BUILD_DIR)/pokeemerald-server
+$(NET_BUILD_DIR)/pokeemerald-server: server/main.c include/net/net_client.h $(ENET_OBJECTS)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -O2 -Wall -Wextra server/main.c $(ENET_OBJECTS) $(LDLIBS) -o $@
+
+.PHONY: relay-test
+relay-test: $(NET_BUILD_DIR)/relay-test
+$(NET_BUILD_DIR)/relay-test: tests/net/relay_test.c src/net/net_client.c include/net/net_client.h include/constants/map_groups.h $(ENET_OBJECTS)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -UNDEBUG tests/net/relay_test.c src/net/net_client.c $(ENET_OBJECTS) $(LDLIBS) -o $@

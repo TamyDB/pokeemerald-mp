@@ -1,3 +1,6 @@
+#ifdef MULTIPLAYER
+#include "net/net_client.h"
+#endif
 #include "global.h"
 #include "overworld.h"
 #include "battle_pyramid.h"
@@ -1487,6 +1490,9 @@ void CB2_Overworld(void)
     if (fading)
         SetVBlankCallback(NULL);
     OverworldBasic();
+#ifdef MULTIPLAYER
+    UpdateNetworkClient();
+#endif
     if (fading)
         SetFieldVBlankCallback();
 }

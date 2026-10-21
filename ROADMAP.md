@@ -1,0 +1,98 @@
+# Roadmap — Pokémon Emerald Multiplayer
+
+Objetivo atual: produzir uma build Linux reproduzível com conexão ENet e jogadores
+visíveis no mesmo mapa. Novas mecânicas e QoL entram depois dessa base.
+
+Atualizado em 2026-10-21. Registro técnico: [decisões](docs/multiplayer-decisions.md).
+
+## Como ler os status
+
+- **Validado:** há evidência automatizada ou operacional descrita na linha.
+- **Implementado:** código disponível, mas falta a validação indicada.
+- **Em andamento:** entrega ainda sendo construída.
+- **Bloqueado:** depende de uma ação externa identificada.
+- **Proposto:** ideia de backlog; ainda sem compromisso de implementação.
+
+## Marco 1 — Base funcional Linux e servidor
+
+| Feature | Status | Evidência / próximo passo |
+| --- | --- | --- |
+| ENet incorporado e protocolo versionado | Validado | Compilação Linux e teste UDP local nos dois canais |
+| Polling na thread existente do jogo | Implementado | Hook em CB2_Overworld; falta teste de sessão prolongada no jogo |
+| Handshake e IDs de jogador | Validado | Testes com cliente real e servidor local/na VM |
+| Entrada e saída confiáveis | Validado | JOIN/LEAVE; posições atrasadas não recriam membros ausentes |
+| Posição enviada a 20 Hz e ordem de sequência | Validado | Testes de intervalo, serialização, duplicatas e rollover |
+| Relay de posições, entrada tardia e reconexão | Validado | Integração com três clientes em localhost e dentro da VM |
+| Objetos remotos no mesmo mapa | Implementado | Testes com APIs de sprites simuladas; falta verificar dois jogadores no jogo |
+| Preservação de NPCs ao reutilizar slots | Validado | Teste de sincronização com slot reutilizado |
+| Executável Linux nativo de 32 bits | Validado | ELF compilado; inicialização sem janela chegou ao quadro 300 |
+| Imagem, áudio, controles e save | Implementado | Recursos do port upstream; falta teste manual desta build |
+| Serviço ENet na Oracle | Validado | systemd ativo e UDP ${POKE_NET_PORT} em escuta; reinício do serviço e novo teste de integração aprovados |
+| Regra UDP ${POKE_NET_PORT} no firewall da VM | Validado | Regra específica ativa e serviço para reaplicar após boot |
+| Conexão pela internet | Bloqueado | Teste expirou sem pacotes no firewall da VM; verificar regra OCI |
+| Empacotamento Linux | Implementado | Script gera launcher, arte, licenças, manifestos e hashes; sem ROM e saves |
+| Checkpoint Git da base | Validado | v0.1.0-alpha.1: base testada; rede pública e gameplay visual ainda pendentes |
+
+### Critérios para concluir o marco
+
+- [x] Compilar cliente e servidor a partir de fontes identificadas.
+- [x] Passar testes determinísticos e integração com transporte real.
+- [x] Instalar servidor como serviço com reinicialização automática configurada.
+- [ ] Confirmar conexão e troca de posições pela internet.
+- [ ] Abrir duas instâncias, entrar no mesmo mapa e observar o outro jogador.
+- [ ] Verificar mudança de mapa, saída de um jogador e ausência de NPCs corrompidos.
+- [ ] Verificar controles, áudio e persistência do save no jogo.
+- [x] Registrar checkpoint e instruções de recuperação.
+
+O teste sem janela comprova inicialização; não comprova toda a gameplay.
+A instalação do servidor não comprova que a rede pública permite a conexão.
+
+## Marco 2 — Estabilidade das sessões
+
+| Feature | Status | Resultado esperado |
+| --- | --- | --- |
+| Status de conexão visível | Proposto | Jogador entende quando conectou, perdeu conexão ou está offline |
+| Reconexão automática | Proposto | Recuperar sessão sem reiniciar o jogo |
+| Polling durante menus e batalhas | Proposto | Manter conexão sem modificar o overworld fora de seu contexto |
+| Animação e interpolação dos remotos | Proposto | Caminhada mais suave, com orientação e animações coerentes |
+| Identidade visual e nome do jogador | Proposto | Distinguir participantes no mapa |
+| Testes de perda, atraso e reordenação de pacotes | Proposto | Medir o comportamento em redes instáveis |
+| Testes de carga com oito jogadores | Proposto | Confirmar capacidade e uso de recursos da VM |
+| Colisão e interação dos objetos remotos | Proposto | Definir comportamento para evitar bloqueio de passagens e scripts acidentais |
+| Compatibilidade entre versões | Proposto | Recusar versões incompatíveis com mensagem compreensível |
+
+## Possíveis features multiplayer
+
+| Feature | Status | Observação |
+| --- | --- | --- |
+| Chat | Proposto | Mensagens no canal confiável; interface e limites a definir |
+| Convites de batalha | Proposto | Definir consentimento, estado da sessão e recuperação de interrupções |
+| Trocas de Pokémon | Proposto | Definir consistência e recuperação antes de alterar saves |
+| Salas privadas e convite | Proposto | Separar grupos de jogadores e controlar entrada |
+| Eventos cooperativos | Proposto | Definir quais eventos são compartilhados e quais permanecem individuais |
+| Atividades e desafios em grupo | Proposto | Avaliar após estabilizar a sincronização básica |
+
+## Possíveis melhorias de QoL
+
+| Feature | Status | Observação |
+| --- | --- | --- |
+| Conectar pelo menu e lembrar servidor | Proposto | Evitar variável de ambiente para uso diário |
+| Remapear controles | Proposto | Avaliar recursos existentes do port antes de implementar |
+| Indicadores de mapa e presença dos amigos | Proposto | Facilitar encontros sem alterar a progressão |
+| Preferências de áudio e interface | Proposto | Avaliar o que o port já oferece e validar nesta build |
+| Backup de saves e perfis separados | Proposto | Facilitar testes e recuperação do progresso |
+| Distribuição Linux mais simples | Proposto | Avaliar pacote portátil após estabilizar dependências |
+| Android e Windows com multiplayer | Proposto | Exigem compilação e testes próprios; ainda não validados |
+
+## Fluxo de versionamento
+
+1. Trabalhar na feature e atualizar este roadmap.
+2. Executar os testes correspondentes e registrar resultados e limitações.
+3. Salvar as fontes em um commit com escopo claro.
+4. Marcar marcos testados com tags; a primeira linha será `v0.1.0-alpha.N`.
+5. Manter builds e manifestos em `build/releases/`, fora do Git.
+6. Nunca incluir ROM, chaves SSH, saves, credenciais ou caches nos commits.
+
+Recuperação deve preservar alterações em andamento: usar um novo branch/worktree
+no checkpoint escolhido. Não usar reset destrutivo para experimentar uma versão.
+Um checkpoint não torna pendências automaticamente concluídas.

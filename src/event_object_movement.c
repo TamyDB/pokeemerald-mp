@@ -1386,6 +1386,15 @@ static void RemoveObjectEvent(struct ObjectEvent *objectEvent)
     RemoveObjectEventInternal(objectEvent);
 }
 
+#ifdef MULTIPLAYER
+// Network objects have no persistent map flag to set.
+void RemoveNetworkObjectEvent(u8 objectEventId)
+{
+    if (objectEventId < OBJECT_EVENTS_COUNT && gObjectEvents[objectEventId].active)
+        RemoveObjectEvent(&gObjectEvents[objectEventId]);
+}
+#endif
+
 void RemoveObjectEventByLocalIdAndMap(u8 localId, u8 mapNum, u8 mapGroup)
 {
     u8 objectEventId;

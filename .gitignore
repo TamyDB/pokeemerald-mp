@@ -45,3 +45,9 @@ prefabs.json
 /pokeemerald-*.png
 /pokeemerald_modern-*.png
 .porydaw/
+
+# Local Python caches and runtime crash reports
+__pycache__/
+*.pyc
+core
+core.*
