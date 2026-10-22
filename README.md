@@ -19,3 +19,6 @@ Decisões e evidências: [docs/multiplayer-decisions.md](docs/multiplayer-decisi
 
 Distribuição no GitHub: **somente fontes e ferramentas de recompilação**.
 Builds do jogo permanecem locais; veja [a política](docs/distribution.md).
+
+Para retomar o desenvolvimento em outra sessão: leia [CONTEXT.md](CONTEXT.md) e
+[o resumo do trabalho](docs/WORK_SUMMARY.md).
