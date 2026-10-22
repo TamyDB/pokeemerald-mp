@@ -25,7 +25,7 @@ campos vazios, sem endereço ou porta padrão. As duas variáveis também podem 
 fornecidas pelo ambiente. Templates de deploy recebem a porta por arquivo local.
 Não copiar valores reais para documentação, commits, tags ou exemplos.
 
-O histórico local de implementação é sanitizado antes de qualquer publicação,
-retirando os valores privados dos checkpoints anteriores. Nenhum force-push é
-necessário: esses commits ainda não foram enviados ao remoto. Pacotes antigos
-continuam exclusivamente locais e não podem ser publicados.
+O histórico local de implementação foi sanitizado antes da primeira publicação,
+retirando os valores privados dos checkpoints anteriores. O branch de implementação
+e as três tags sanitizadas foram então enviados ao GitHub com autorização do usuário,
+sem force-push. Pacotes antigos continuam exclusivamente locais e não podem ser publicados.

@@ -213,3 +213,12 @@ obrigatórios, CRLF/normalização e ausência de execução de comandos. O test
 integração com porta efêmera passou usando InitNetworkClientFromEnvironment.
 A build Linux foi recompilada. Checkpoints anteriores também precisam de
 sanitização, porque remover valores apenas no HEAD não protege o histórico.
+
+## Publicação dos fontes no GitHub
+
+Após autorização expressa do usuário, o branch de implementação e as três tags
+sanitizadas foram publicados por SSH, de forma atômica. Auditoria prévia verificou
+o histórico a enviar, metadados das tags e ausência de arquivos gerados do jogo ou
+endpoint privado. O master não foi alterado. Builds, ROM e configuração pessoal
+continuam fora do GitHub. As notas anteriores de ausência de push descrevem o
+estado anterior a esta publicação.

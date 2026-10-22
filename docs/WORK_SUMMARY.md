@@ -28,7 +28,8 @@ pendentes de teste manual. Não afirmar que o marco inteiro foi concluído.
 12. Usuário adicionou a ingress rule na OCI; conectividade pública passou.
 13. Corrigido travamento de encerramento descoberto pelo teste sem janela.
 14. Criados roadmap, política de distribuição, scripts e pacotes estritamente locais.
-15. Salvos commits e tags de checkpoint; nenhum push ou upload do jogo foi feito.
+15. Salvos commits e tags de checkpoint; posteriormente publicados apenas fontes
+    e documentação sanitizados, com autorização do usuário. Nenhum upload do jogo.
 
 ## Evidências e limites
 
@@ -202,4 +203,15 @@ O serviço existente da VM não foi alterado: seus valores continuam locais.
 Checkpoint alpha.3: configuração de endpoint privado parametrizada. Testes de
 configuração, cliente e integração com porta efêmera aprovados; build Linux
 recompilada e smoke test offline aprovado. O histórico anterior é sanitizado
-localmente antes de qualquer publicação. Nenhum push foi realizado.
+localmente antes da primeira publicação. O branch e as tags sanitizadas foram
+posteriormente enviados ao GitHub após autorização do usuário.
+
+## Publicação dos fontes autorizada
+
+O usuário autorizou o envio após concluir a remoção do endpoint privado. Foi
+feita auditoria dos oito commits locais, três tags e arquivos novos/modificados.
+O branch `multiplayer/initial-linux` e as tags alpha.1/alpha.2/alpha.3 foram enviados
+para `TamyDB/pokeemerald-mp`, preservando o master. HTTPS não tinha credenciais;
+a autenticação SSH existente funcionou. Não foram publicadas builds, ROM,
+configurações locais ou valores do endpoint privado. Não criar GitHub Releases
+com binários. Não refazer a sanitização nem mover tags já publicadas sem necessidade.

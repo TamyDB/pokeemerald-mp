@@ -84,7 +84,9 @@ uma nova tag. Consultar `git status`, `git log` e as tags antes de modificar alg
 Preservar mudanças do usuário. Para experimentar checkpoints antigos, preferir
 worktree/branch separado; não usar reset destrutivo.
 
-Não houve push nesta sessão. Qualquer publicação futura deve respeitar a política
+O branch `multiplayer/initial-linux` e as tags alpha.1/alpha.2/alpha.3 foram
+publicados no GitHub após autorização do usuário e auditoria do histórico
+sanitizado. O master foi preservado. Publicações futuras devem manter a política
 somente fontes/ferramentas e revisar o conteúdo preparado para envio.
 
 ## Próxima prioridade
