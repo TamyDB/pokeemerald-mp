@@ -175,3 +175,11 @@ exibidos em caixa alta para inicial maiúscula, como BRENDAN → Brendan. O road
 inclui levantamento, persistência das configurações, revisão de nomes compostos
 e verificação visual dos textos. Preservar nomes escolhidos pelo jogador,
 identificadores internos e saves até existir uma decisão específica.
+
+## Menu multiplayer e servidores personalizados — backlog
+
+O usuário definiu que a VM atual será usada inicialmente com amigos. Na versão
+futura, cada jogador informará o IP e a porta do servidor em um menu Multiplayer.
+O roadmap agora inclui edição e validação desses campos, conectar/desconectar,
+status e persistência local. O launcher atual aponta para a VM e usa porta ${POKE_NET_PORT};
+a mudança de menu/configuração permanece apenas planejada.

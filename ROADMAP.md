@@ -77,7 +77,7 @@ validação visual de dois jogadores no jogo.
 
 | Feature | Status | Observação |
 | --- | --- | --- |
-| Conectar pelo menu e lembrar servidor | Proposto | Evitar variável de ambiente para uso diário |
+| Menu multiplayer com servidor personalizado | Proposto | Cada jogador informa IP e porta do servidor; conectar, desconectar e lembrar a configuração, sem depender de um endereço fixo |
 | Remapear controles | Proposto | Avaliar recursos existentes do port antes de implementar |
 | Indicadores de mapa e presença dos amigos | Proposto | Facilitar encontros sem alterar a progressão |
 | Preferências de áudio e interface | Proposto | Avaliar o que o port já oferece e validar nesta build |
@@ -86,6 +86,23 @@ validação visual de dois jogadores no jogo.
 | Backup de saves e perfis separados | Proposto | Facilitar testes e recuperação do progresso |
 | Distribuição Linux mais simples | Proposto | Avaliar pacote portátil após estabilizar dependências |
 | Android e Windows com multiplayer | Proposto | Exigem compilação e testes próprios; ainda não validados |
+
+### To-do do menu multiplayer
+
+- [ ] Adicionar uma opção Multiplayer ao menu do jogo.
+- [ ] Permitir que cada jogador informe o IP e a porta do servidor desejado.
+- [ ] Validar endereço e porta antes de tentar conectar, mostrando erros compreensíveis.
+- [ ] Oferecer ações de conectar e desconectar, com status visível da conexão.
+- [ ] Salvar IP e porta nas preferências locais do jogador e permitir editá-los.
+- [ ] Adaptar a configuração do cliente/launcher para receber a porta escolhida,
+  além do endereço; atualmente o launcher do jogo usa a porta fixa ${POKE_NET_PORT}.
+- [ ] Testar conexão com servidores e portas diferentes, configurações inválidas
+  e persistência das preferências.
+
+Decisão do usuário: nesta fase, usar a VM atual para testes com amigos. Na versão
+futura, cada jogador deverá informar IP e porta do servidor pelo menu; a VM e
+seu endereço não serão uma dependência fixa do projeto. Nada disso está
+implementado nesta etapa; o launcher atual continua apontando para a VM.
 
 ### To-do de configurações e textos
 

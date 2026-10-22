@@ -91,3 +91,10 @@ A rede pública já passou nos testes automatizados. Falta verificar **dois joga
 visíveis dentro do jogo**, mudança de mapa, saída, controles, áudio e save. Não
 marcar o primeiro marco completo até registrar essas evidências. Consulte o
 resumo operacional antes de repetir instalações ou alterar a VM.
+
+## Direção futura da conexão
+
+A VM atual atende aos testes iniciais com amigos. O usuário quer um menu
+Multiplayer no qual cada jogador configure IP e porta do servidor, com preferências
+locais. O endereço da VM não deve se tornar uma dependência fixa do produto.
+Essa funcionalidade está no backlog; atualmente o launcher usa a VM e porta ${POKE_NET_PORT}.
