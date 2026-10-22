@@ -68,9 +68,11 @@ Para retirar a liberação local: `sudo systemctl disable --now pokeemerald-udp`
 
 ## Rede Oracle
 
-O teste dentro da VM passou. O primeiro teste público expirou e o contador da
-regra UDP ${POKE_NET_PORT} permaneceu em zero. A hipótese é bloqueio na rede anterior à VM;
-não foi comprovada conectividade pública.
+O teste dentro da VM passou. O primeiro teste público expirou sem pacotes no
+firewall da VM. Após o usuário criar a ingress rule na OCI, a integração pública
+passou com clientes x86_64 e i386: handshake, posições, descarte de estado antigo
+e inválido, entrada tardia, saída e reconexão. A conexão pública está validada;
+sprites e gameplay ainda exigem teste manual.
 
 Na Security List da subnet ou NSG da VNIC, permitir entrada stateful:
 
@@ -82,7 +84,7 @@ Na Security List da subnet ou NSG da VNIC, permitir entrada stateful:
 | Porta de destino | ${POKE_NET_PORT} |
 
 Referência: [documentação de Security Lists da Oracle](https://docs.oracle.com/en-us/iaas/Content/Network/Concepts/creating-securitylist.htm).
-Após aplicar, repetir o teste de integração público. Não é necessário abrir TCP
+A regra já foi aplicada pelo usuário e validada pelo teste público. Não é necessário abrir TCP
 ${POKE_NET_PORT}. Não foi acessado o painel/API OCI nesta entrega.
 
 ## Jogar

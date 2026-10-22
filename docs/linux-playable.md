@@ -56,7 +56,7 @@ POKE_NET_SERVER=127.0.0.1 ./scripts/play_linux.sh
 ```
 
 A porta é ${POKE_NET_PORT}. Exige servidor compatível com o protocolo de `multiplayer.md`;
-o servidor foi instalado na VM, mas o teste público ainda depende da rede OCI.
+o servidor está ativo na VM e os testes públicos passaram em x86_64 e i386.
 Sem essa variável não inicia conexão. Para usar a VM, execute
 `./scripts/play_multiplayer_linux.sh`.
 
@@ -77,13 +77,15 @@ são executados separadamente com `make -f Makefile_pc network test-network`.
 
 ## Checkpoint e pacote local
 
-Versão inicial: `v0.1.0-alpha.1`, branch `multiplayer/initial-linux`.
+Versão inicial: `v0.1.0-alpha.1`; checkpoint com rede pública validada:
+`v0.1.0-alpha.2`, branch `multiplayer/initial-linux`. O executável é o mesmo;
+a segunda versão registra a nova evidência de conectividade.
 O marco multiplayer completo ainda depende dos itens abertos em ROADMAP.md.
 
 Depois de fazer checkout da tag e compilar:
 
 ```sh
-python3 scripts/package_linux.py v0.1.0-alpha.1
+python3 scripts/package_linux.py v0.1.0-alpha.2
 ```
 
 O pacote fica em `build/releases/`, com launcher, arte, licenças e manifesto

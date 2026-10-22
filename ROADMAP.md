@@ -29,23 +29,24 @@ Atualizado em 2026-10-21. Registro técnico: [decisões](docs/multiplayer-decisi
 | Imagem, áudio, controles e save | Implementado | Recursos do port upstream; falta teste manual desta build |
 | Serviço ENet na Oracle | Validado | systemd ativo e UDP ${POKE_NET_PORT} em escuta; reinício do serviço e novo teste de integração aprovados |
 | Regra UDP ${POKE_NET_PORT} no firewall da VM | Validado | Regra específica ativa e serviço para reaplicar após boot |
-| Conexão pela internet | Bloqueado | Teste expirou sem pacotes no firewall da VM; verificar regra OCI |
-| Empacotamento Linux | Implementado | Script gera launcher, arte, licenças, manifestos e hashes; sem ROM e saves |
-| Checkpoint Git da base | Validado | v0.1.0-alpha.1: base testada; rede pública e gameplay visual ainda pendentes |
+| Conexão pela internet | Validado | Integração pública com três clientes aprovada em x86_64 e i386 após liberar UDP ${POKE_NET_PORT} na OCI |
+| Empacotamento Linux | Validado | Pacote alpha.1 gerado e manifesto verificado; alpha.2 registra a validação pública, sem mudança no executável |
+| Checkpoint Git da base | Validado | v0.1.0-alpha.2: rede pública testada; gameplay visual ainda pendente |
 
 ### Critérios para concluir o marco
 
 - [x] Compilar cliente e servidor a partir de fontes identificadas.
 - [x] Passar testes determinísticos e integração com transporte real.
 - [x] Instalar servidor como serviço com reinicialização automática configurada.
-- [ ] Confirmar conexão e troca de posições pela internet.
+- [x] Confirmar conexão e troca de posições pela internet.
 - [ ] Abrir duas instâncias, entrar no mesmo mapa e observar o outro jogador.
 - [ ] Verificar mudança de mapa, saída de um jogador e ausência de NPCs corrompidos.
 - [ ] Verificar controles, áudio e persistência do save no jogo.
 - [x] Registrar checkpoint e instruções de recuperação.
 
 O teste sem janela comprova inicialização; não comprova toda a gameplay.
-A instalação do servidor não comprova que a rede pública permite a conexão.
+A rede pública foi testada com clientes reais sem renderização; ainda falta a
+validação visual de dois jogadores no jogo.
 
 ## Marco 2 — Estabilidade das sessões
 

@@ -176,3 +176,16 @@ Resultado da correção de encerramento: teste sem janela aprovado; processo
 finalizou após o timeout, log confirmou cena inicial e quadro 300. Não foi
 necessário forçar encerramento na nova build. O processo travado da tentativa
 anterior foi finalizado pelo PID específico do teste.
+
+## Checkpoint v0.1.0-alpha.2 — Conectividade pública validada
+
+Após o usuário adicionar a ingress rule UDP ${POKE_NET_PORT} na rede Oracle, os comandos
+`build/pc-net/relay-test ${POKE_NET_SERVER} ${POKE_NET_PORT}` e
+`build/pc-net/relay-test32 ${POKE_NET_SERVER} ${POKE_NET_PORT}` passaram. Cada execução usa o cliente
+real do jogo e dois probes ENet. Foram verificados handshake, presença, posições,
+pacotes antigos/inválidos, entrada tardia, saída e reconexão pela internet.
+
+A alteração desta versão é de status, documentação e VERSION; não há mudança de
+protocolo ou executável. A tag anterior permanece preservada. A comunicação
+pública foi comprovada, mas os callbacks de sincronização no teste ainda são
+simulados: não equivale a observar dois jogadores renderizados no jogo.
