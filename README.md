@@ -2,7 +2,7 @@
 
 Ferramentas para recompilar o port C/SDL2 de Pokémon Emerald com multiplayer
 ENet. O objetivo inicial é conectar jogadores e mostrar suas posições no mesmo
-mapa. A base está no checkpoint **v0.1.0-alpha.2**, com protocolo de rede 2.
+mapa. Checkpoint atual: **v0.1.0-alpha.3**, protocolo 2. IP e porta são configuração local e privada.
 
 **A rede funciona nos testes automatizados pela internet. Ainda falta validar
 visualmente dois jogadores dentro do jogo.** A compilação e a inicialização
@@ -22,14 +22,31 @@ cd /home/tamy/Projetos/pokeemerald-mp
 ./scripts/play_multiplayer_linux.sh
 ```
 
-O jogo usa o servidor `${POKE_NET_SERVER}`, porta **UDP ${POKE_NET_PORT}**. Inicie ou carregue um
-jogo e entre no mapa jogável. A conexão só começa no overworld; não espere uma
+Antes da primeira execução, copie o modelo se ainda não houver configuração:
+
+```bash
+if [ ! -f config/multiplayer.env ]; then
+    cp config/multiplayer.env.example config/multiplayer.env
+fi
+```
+
+Abra `config/multiplayer.env` no seu editor e preencha o IPv4 e a porta UDP do
+servidor que você deseja usar. Os dois campos vêm vazios no modelo:
+
+```dotenv
+POKE_NET_SERVER=
+POKE_NET_PORT=
+```
+
+Esse arquivo preenchido é local e ignorado pelo Git. Não publique seu conteúdo.
+O launcher recusa configuração ausente/inválida, sem usar um servidor padrão.
+Inicie ou carregue um jogo e entre no mapa jogável. A conexão só começa no overworld; não espere uma
 mensagem de conexão na tela de título.
 
 No terminal, uma conexão bem-sucedida mostra algo semelhante a:
 
 ```text
-NET: connecting to ${POKE_NET_SERVER}:${POKE_NET_PORT}
+NET: connecting to IP_CONFIGURADO:PORTA_CONFIGURADA
 NET: handshake complete, player=... protocol=2
 ```
 
@@ -39,13 +56,13 @@ não comprova sozinho que outro jogador está sendo desenhado.
 Para jogar sem iniciar conexão de rede:
 
 ```bash
-env -u POKE_NET_SERVER ./scripts/play_linux.sh
+env -u POKE_NET_SERVER -u POKE_NET_PORT ./scripts/play_linux.sh
 ```
 
-Para apontar a outro servidor IPv4, mantendo a porta ${POKE_NET_PORT}:
+Para substituir IP e porta temporariamente (exemplo com servidor local):
 
 ```bash
-POKE_NET_SERVER=127.0.0.1 ./scripts/play_multiplayer_linux.sh
+POKE_NET_SERVER=127.0.0.1 POKE_NET_PORT=25001 ./scripts/play_multiplayer_linux.sh
 ```
 
 ## Controles
@@ -74,12 +91,14 @@ execução e não copia nem sobrescreve o save da build normal.
 
 ```bash
 cd /home/tamy/Projetos/pokeemerald-mp
+source scripts/multiplayer_config.sh
+LoadMultiplayerConfig "$PWD/config/multiplayer.env"
 mkdir -p build/playtests
 test_dir="$(mktemp -d "$PWD/build/playtests/player.XXXXXX")"
 cp build/linux-port/pokeemerald build/linux-port/BG*.png build/linux-port/Border.png "$test_dir/"
 printf 'Pasta deste jogador: %s\n' "$test_dir"
 cd "$test_dir"
-POKE_NET_SERVER=${POKE_NET_SERVER} ./pokeemerald 2>&1 | tee network.log
+./pokeemerald 2>&1 | tee network.log
 ```
 
 3. Crie um jogo em cada janela. Para facilitar o encontro, escolha o mesmo tipo
@@ -104,7 +123,7 @@ Para reabrir um save de teste, use o caminho de pasta impresso no terminal:
 
 ```bash
 cd /caminho/impresso/para/player.XXXXXX
-POKE_NET_SERVER=${POKE_NET_SERVER} ./pokeemerald
+POKE_NET_SERVER=SEU_IP POKE_NET_PORT=SUA_PORTA ./pokeemerald
 ```
 
 Os logs ficam em `network.log` nas respectivas pastas. Se o teste falhar, registre
@@ -125,7 +144,9 @@ python3 scripts/test_relay.py
 Para repetir a integração com o servidor público:
 
 ```bash
-build/pc-net/relay-test ${POKE_NET_SERVER} ${POKE_NET_PORT}
+source scripts/multiplayer_config.sh
+LoadMultiplayerConfig "$PWD/config/multiplayer.env"
+build/pc-net/relay-test "$POKE_NET_SERVER" "$POKE_NET_PORT"
 ```
 
 O resultado esperado é `Relay integration passed`. Esse teste cria até três
@@ -195,10 +216,11 @@ Instruções detalhadas e pacotes exclusivamente locais:
 - Se o executável não abrir, confira as bibliotecas com
   `ldd build/linux-port/pokeemerald`. As dependências precisam ser de 32 bits.
 - Servidor local para desenvolvimento: compile com `make -f Makefile_pc server`
-  e execute `build/pc-net/pokeemerald-server ${POKE_NET_PORT}`; depois use
-  `POKE_NET_SERVER=127.0.0.1 ./scripts/play_multiplayer_linux.sh`.
+  e escolha uma porta, por exemplo `build/pc-net/pokeemerald-server 25001`; depois use
+  `POKE_NET_SERVER=127.0.0.1 POKE_NET_PORT=25001 ./scripts/play_multiplayer_linux.sh`.
 
-A VM já está configurada e a ingress rule UDP ${POKE_NET_PORT} já foi validada. Operação,
+A VM de testes já está configurada e a conexão pública foi validada. IP e porta
+não são publicados; obtenha-os com quem hospeda o servidor. Operação,
 logs e comandos de serviço: [docs/server.md](docs/server.md).
 
 ## Contexto, decisões e checkpoints
@@ -207,7 +229,7 @@ logs e comandos de serviço: [docs/server.md](docs/server.md).
 - [CONTEXT.md](CONTEXT.md): objetivo, arquitetura e restrições permanentes.
 - [WORK_SUMMARY.md](docs/WORK_SUMMARY.md): passagem de contexto e evidências.
 - [Registro de decisões](docs/multiplayer-decisions.md): justificativas e validações.
-- Checkpoints de fontes: `v0.1.0-alpha.1` e `v0.1.0-alpha.2`.
+- Checkpoints de fontes: `v0.1.0-alpha.1`, `v0.1.0-alpha.2` e `v0.1.0-alpha.3`.
 
 Este trabalho parte da decompilação Pokémon Emerald e do port multiplataforma
 indicado acima. Para o alvo GBA original, veja [INSTALL.md](INSTALL.md).

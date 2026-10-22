@@ -31,17 +31,25 @@ output.mkdir(parents=True)
 for name in ("pokeemerald", "BG.png", "BG1.png", "Border.png", "LICENSE"):
     shutil.copy2(port / name, output / name)
 shutil.copy2(root / "src/net/enet/LICENSE", output / "LICENSE-ENet")
+shutil.copy2(root / "scripts/multiplayer_config.sh", output / "multiplayer_config.sh")
+shutil.copy2(root / "config/multiplayer.env.example", output / "multiplayer.env.example")
 (output / "play.sh").write_text('''#!/usr/bin/env bash
 set -euo pipefail
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
-export POKE_NET_SERVER="${POKE_NET_SERVER-127.0.0.1}"
+if [[ "${1:-}" == --offline ]]; then
+    shift
+    unset POKE_NET_SERVER POKE_NET_PORT
+else
+    source ./multiplayer_config.sh
+    LoadMultiplayerConfig "${POKE_NET_CONFIG:-./multiplayer.env}"
+fi
 exec ./pokeemerald "$@"
 ''')
 (output / "play.sh").chmod(0o755)
 (output / "README.txt").write_text('''Build experimental Linux i386, protocolo ENet 2.
-Execute ./play.sh. Conecta à VM ao entrar no overworld, na porta UDP 25001.
-Outro servidor: POKE_NET_SERVER=127.0.0.1 ./play.sh
-Modo offline: POKE_NET_SERVER= ./play.sh
+Copie multiplayer.env.example para multiplayer.env e preencha o IP e a porta.
+Execute ./play.sh. Conecta ao servidor configurado ao entrar no overworld.
+Modo offline: ./play.sh --offline
 Requer bibliotecas SDL2, SDL2_image, OpenGL/GLU e libc de 32 bits instaladas.
 Não é um AppImage e não inclui bibliotecas de sistema, ROM ou saves.
 Use uma cópia/pasta diferente para cada jogador local; o save fica nesta pasta.

@@ -16,3 +16,16 @@ cada pessoa gera sua build localmente com os arquivos necessários.
 Nenhum executável ou pacote do jogo foi enviado ao GitHub nesta sessão.
 O workflow CI existente não publica a ROM/executável como artefato ou release.
 Esta regra não altera os arquivos históricos do upstream.
+
+## Endpoint privado
+
+O usuário determinou que IP e porta da sua VM não devem ser publicados. O jogador
+preenche `config/multiplayer.env`, ignorado pelo Git. O modelo versionado tem
+campos vazios, sem endereço ou porta padrão. As duas variáveis também podem ser
+fornecidas pelo ambiente. Templates de deploy recebem a porta por arquivo local.
+Não copiar valores reais para documentação, commits, tags ou exemplos.
+
+O histórico local de implementação é sanitizado antes de qualquer publicação,
+retirando os valores privados dos checkpoints anteriores. Nenhum force-push é
+necessário: esses commits ainda não foram enviados ao remoto. Pacotes antigos
+continuam exclusivamente locais e não podem ser publicados.

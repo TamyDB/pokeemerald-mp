@@ -191,5 +191,22 @@ int main(void)
     sServiceError = 1;
     UpdateNetworkClient();
     assert(sShutdown == count + 1);
+    sServiceError = 0;
+    unsetenv("POKE_NET_SERVER");
+    unsetenv("POKE_NET_PORT");
+    assert(!InitNetworkClientFromEnvironment());
+    setenv("POKE_NET_SERVER", "127.0.0.1", 1);
+    assert(!InitNetworkClientFromEnvironment());
+    setenv("POKE_NET_PORT", "65536", 1);
+    assert(!InitNetworkClientFromEnvironment());
+    setenv("POKE_NET_PORT", "0", 1);
+    assert(!InitNetworkClientFromEnvironment());
+    setenv("POKE_NET_PORT", "-1", 1);
+    assert(!InitNetworkClientFromEnvironment());
+    setenv("POKE_NET_PORT", "25001", 1);
+    assert(InitNetworkClientFromEnvironment());
+    ShutdownNetworkClient();
+    unsetenv("POKE_NET_SERVER");
+    unsetenv("POKE_NET_PORT");
     return 0;
 }

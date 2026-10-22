@@ -5,8 +5,9 @@ Before=network.target
 
 [Service]
 Type=oneshot
-ExecStart=/bin/sh -c '/usr/sbin/iptables -C INPUT -p udp --dport 25001 -j ACCEPT || /usr/sbin/iptables -I INPUT 1 -p udp --dport 25001 -j ACCEPT'
-ExecStop=/bin/sh -c '/usr/sbin/iptables -D INPUT -p udp --dport 25001 -j ACCEPT || true'
+EnvironmentFile=/etc/pokeemerald-server.env
+ExecStart=/bin/sh -c '/usr/sbin/iptables -C INPUT -p udp --dport "${POKE_NET_PORT}" -j ACCEPT || /usr/sbin/iptables -I INPUT 1 -p udp --dport "${POKE_NET_PORT}" -j ACCEPT'
+ExecStop=/bin/sh -c '/usr/sbin/iptables -D INPUT -p udp --dport "${POKE_NET_PORT}" -j ACCEPT || true'
 RemainAfterExit=yes
 
 [Install]

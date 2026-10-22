@@ -140,13 +140,17 @@ static void Receive(struct Client *client, const ENetEvent *event)
 
 int main(int argc, char **argv)
 {
-    ENetAddress address = {ENET_HOST_ANY, 25001};
+    ENetAddress address = {ENET_HOST_ANY, 0};
     ENetHost *host;
     u32 lastSnapshot;
     char *end;
     long port;
     unsigned int i;
-    if (argc > 2) return 2;
+    if (argc != 2)
+    {
+        fprintf(stderr, "Usage: %s UDP_PORT\n", argv[0]);
+        return 2;
+    }
     if (argc == 2)
     {
         port = strtol(argv[1], &end, 10);

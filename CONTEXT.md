@@ -76,6 +76,8 @@ Branch de implementação: `multiplayer/initial-linux`. Checkpoints:
 
 - `v0.1.0-alpha.1`: base, servidor instalado e testes locais/na VM.
 - `v0.1.0-alpha.2`: validação pública x86_64/i386; mesmo executável da alpha.1.
+- `v0.1.0-alpha.3`: IP/porta via arquivo local, campos vazios no modelo público
+  e histórico de implementação sanitizado para remover endpoint privado.
 
 Commits posteriores podem atualizar documentação sem alterar VERSION ou criar
 uma nova tag. Consultar `git status`, `git log` e as tags antes de modificar algo.
@@ -97,4 +99,6 @@ resumo operacional antes de repetir instalações ou alterar a VM.
 A VM atual atende aos testes iniciais com amigos. O usuário quer um menu
 Multiplayer no qual cada jogador configure IP e porta do servidor, com preferências
 locais. O endereço da VM não deve se tornar uma dependência fixa do produto.
-Essa funcionalidade está no backlog; atualmente o launcher usa a VM e porta ${POKE_NET_PORT}.
+O menu está no backlog. O launcher já exige IP e porta pelo arquivo local
+`config/multiplayer.env`, ignorado pelo Git; o modelo vem com campos vazios.
+Não escrever o endpoint privado em arquivos ou históricos publicáveis.

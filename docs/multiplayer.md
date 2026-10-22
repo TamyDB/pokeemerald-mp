@@ -14,7 +14,7 @@ As opções de sockets estão em `LDLIBS` e precisam ser usadas no link final.
 
 No port, compile também o jogo com `-DMULTIPLAYER` e vincule a biblioteca.
 Na thread principal, após carregar o save, chame
-`InitNetworkClient("127.0.0.1", ${POKE_NET_PORT})`. O retorno indica início da tentativa;
+`InitNetworkClient(enderecoConfigurado, portaConfigurada)`. O retorno indica início da tentativa;
 o handshake termina de forma assíncrona. Endereços são IPv4 numéricos para
 não bloquear com DNS. `CB2_Overworld` chama `UpdateNetworkClient`.
 Chame `ShutdownNetworkClient` antes de descarregar o save ou encerrar o jogo.

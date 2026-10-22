@@ -60,3 +60,8 @@ core.*
 *.AppImage
 *.deb
 *.rpm
+
+# Player-specific network endpoints (never publish).
+/config/multiplayer.env
+/config/server.env
+/multiplayer.env

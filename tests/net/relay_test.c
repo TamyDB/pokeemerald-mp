@@ -124,7 +124,9 @@ int main(int argc, char **argv)
     sSave.pos.y = 20;
     gObjectEvents[0].active = TRUE;
     gObjectEvents[0].facingDirection = 1;
-    assert(InitNetworkClient(argv[1], address.port));
+    assert(setenv("POKE_NET_SERVER", argv[1], 1) == 0);
+    assert(setenv("POKE_NET_PORT", argv[2], 1) == 0);
+    assert(InitNetworkClientFromEnvironment());
     Start(&a, &address);
     start = enet_time_get();
     do { Pump(&a, NULL, 10); } while ((!a.id || !a.positions || !a.joinId) && (u32)(enet_time_get() - start) < 10000);

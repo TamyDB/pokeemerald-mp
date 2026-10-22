@@ -9,7 +9,7 @@ mkdir -p "$test_dir"
 cp "$port_dir/BG.png" "$port_dir/BG1.png" "$port_dir/Border.png" "$test_dir/"
 cd "$test_dir"
 status=0
-timeout -k 2s 8s env -u POKE_NET_SERVER SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy SDL_RENDER_DRIVER=software \
+timeout -k 2s 8s env -u POKE_NET_SERVER -u POKE_NET_PORT SDL_VIDEODRIVER=dummy SDL_AUDIODRIVER=dummy SDL_RENDER_DRIVER=software \
     "$port_dir/pokeemerald" > smoke.log 2>&1 || status=$?
 if [[ "$status" != 124 ]]; then
     cat smoke.log

@@ -52,12 +52,12 @@ Controles: setas, Z (A), X (B), Enter (Start), barra invertida (Select), A/S (L/
 O jogo inicia em modo local. Para tentar o cliente de rede ao entrar no overworld:
 
 ```sh
-POKE_NET_SERVER=127.0.0.1 ./scripts/play_linux.sh
+POKE_NET_SERVER=127.0.0.1 POKE_NET_PORT=25001 ./scripts/play_linux.sh
 ```
 
-A porta é ${POKE_NET_PORT}. Exige servidor compatível com o protocolo de `multiplayer.md`;
+IP e porta são informados pelo jogador. Exige servidor compatível com o protocolo de `multiplayer.md`;
 o servidor está ativo na VM e os testes públicos passaram em x86_64 e i386.
-Sem essa variável não inicia conexão. Para usar a VM, execute
+Sem as duas variáveis não inicia conexão. Para usar um servidor configurado, execute
 `./scripts/play_multiplayer_linux.sh`.
 
 ## Validação prevista
@@ -85,7 +85,7 @@ O marco multiplayer completo ainda depende dos itens abertos em ROADMAP.md.
 Depois de fazer checkout da tag e compilar:
 
 ```sh
-python3 scripts/package_linux.py v0.1.0-alpha.2
+python3 scripts/package_linux.py v0.1.0-alpha.3
 ```
 
 O pacote fica em `build/releases/`, com launcher, arte, licenças e manifesto
@@ -104,3 +104,9 @@ As tags e commits foram criados localmente. Não houve push para o remoto.
 O pacote descrito acima é **exclusivamente local**. Não deve ser enviado ao GitHub
 como commit, release ou artefato CI. A distribuição do projeto disponibiliza
 somente as ferramentas/fontes para recompilar: [política](distribution.md).
+
+A partir de `v0.1.0-alpha.3`, IP e porta vêm de um arquivo local ignorado pelo Git,
+com os campos vazios no modelo público. O pacote local contém somente o modelo;
+o launcher exige preenchimento. Use `./play.sh --offline` para jogar sem rede.
+Os hashes dos checkpoints locais antigos mudaram durante a sanitização do
+histórico; os nomes das tags foram preservados. Não publicar pacotes antigos.

@@ -43,7 +43,7 @@ O teste requer permissão para sockets UDP. Não verifica sprites na tela.
 Para testar um servidor existente (cria até três conexões temporárias):
 
 ```sh
-build/pc-net/relay-test ${POKE_NET_SERVER} ${POKE_NET_PORT}
+build/pc-net/relay-test "$POKE_NET_SERVER" "$POKE_NET_PORT"
 ```
 
 ## Instalação atual
@@ -81,11 +81,11 @@ Na Security List da subnet ou NSG da VNIC, permitir entrada stateful:
 | Origem CIDR | 0.0.0.0/0 |
 | Protocolo | UDP |
 | Porta de origem | Todas |
-| Porta de destino | ${POKE_NET_PORT} |
+| Porta de destino | $POKE_NET_PORT |
 
 Referência: [documentação de Security Lists da Oracle](https://docs.oracle.com/en-us/iaas/Content/Network/Concepts/creating-securitylist.htm).
 A regra já foi aplicada pelo usuário e validada pelo teste público. Não é necessário abrir TCP
-${POKE_NET_PORT}. Não foi acessado o painel/API OCI nesta entrega.
+$POKE_NET_PORT. Não foi acessado o painel/API OCI nesta entrega.
 
 ## Jogar
 
@@ -93,7 +93,16 @@ ${POKE_NET_PORT}. Não foi acessado o painel/API OCI nesta entrega.
 ./scripts/play_multiplayer_linux.sh
 ```
 
-O launcher configura o endereço da VM e mantém porta ${POKE_NET_PORT}. A conexão começa ao
+O jogador preenche IP e porta em `config/multiplayer.env`, usando o modelo
+versionado `config/multiplayer.env.example`. O arquivo preenchido é ignorado
+pelo Git. A conexão começa ao
 entrar no overworld. Duas instâncias locais precisam de diretórios de trabalho
 separados para não compartilharem save/config simultaneamente.
-Para apontar a outro IPv4: `POKE_NET_SERVER=127.0.0.1 ./scripts/play_multiplayer_linux.sh`.
+Para outro servidor, edite os dois campos locais ou forneça
+`POKE_NET_SERVER` e `POKE_NET_PORT` pelo ambiente. O servidor exige uma porta
+explícita na linha de comando: `build/pc-net/pokeemerald-server "$POKE_NET_PORT"`.
+
+Os templates systemd não contêm endpoint da VM. Para instalá-los, preencha
+`POKE_NET_PORT` em `~/.config/pokeemerald-server/server.env` (serviço do usuário)
+e `/etc/pokeemerald-server.env` (regra local, administrada por root). O modelo
+está em `config/server.env.example`; os arquivos preenchidos não são publicados.

@@ -5,7 +5,8 @@ After=network.target
 [Service]
 Type=simple
 WorkingDirectory=%h/pokeemerald-server
-ExecStart=%h/pokeemerald-server/build/pc-net/pokeemerald-server 25001
+EnvironmentFile=%h/.config/pokeemerald-server/server.env
+ExecStart=%h/pokeemerald-server/build/pc-net/pokeemerald-server ${POKE_NET_PORT}
 Restart=on-failure
 RestartSec=3
 NoNewPrivileges=true

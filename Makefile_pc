@@ -72,3 +72,8 @@ $(NET_BUILD_DIR)/pokeemerald-server: server/main.c include/net/net_client.h $(EN
 relay-test: $(NET_BUILD_DIR)/relay-test
 $(NET_BUILD_DIR)/relay-test: tests/net/relay_test.c src/net/net_client.c include/net/net_client.h include/constants/map_groups.h $(ENET_OBJECTS)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -UNDEBUG tests/net/relay_test.c src/net/net_client.c $(ENET_OBJECTS) $(LDLIBS) -o $@
+
+test-network: test-network-config
+.PHONY: test-network-config
+test-network-config:
+	python3 tests/net/config_test.py

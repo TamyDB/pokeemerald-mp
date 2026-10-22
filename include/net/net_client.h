@@ -64,6 +64,7 @@ typedef NetLeavePacket NetJoinPacket;
 
 // Numeric IPv4 only: avoids blocking DNS. Call from the game thread.
 u8 InitNetworkClient(const char *serverAddress, u16 port);
+u8 InitNetworkClientFromEnvironment(void);
 void UpdateNetworkClient(void);
 void SendPlayerPosition(void);
 void ShutdownNetworkClient(void);

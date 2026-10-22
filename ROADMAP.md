@@ -27,9 +27,9 @@ Atualizado em 2026-10-21. Registro técnico: [decisões](docs/multiplayer-decisi
 | Preservação de NPCs ao reutilizar slots | Validado | Teste de sincronização com slot reutilizado |
 | Executável Linux nativo de 32 bits | Validado | ELF compilado; inicialização sem janela chegou ao quadro 300 |
 | Imagem, áudio, controles e save | Implementado | Recursos do port upstream; falta teste manual desta build |
-| Serviço ENet na Oracle | Validado | systemd ativo e UDP ${POKE_NET_PORT} em escuta; reinício do serviço e novo teste de integração aprovados |
-| Regra UDP ${POKE_NET_PORT} no firewall da VM | Validado | Regra específica ativa e serviço para reaplicar após boot |
-| Conexão pela internet | Validado | Integração pública com três clientes aprovada em x86_64 e i386 após liberar UDP ${POKE_NET_PORT} na OCI |
+| Serviço ENet na Oracle | Validado | systemd ativo e porta UDP localmente configurada em escuta; reinício do serviço e novo teste de integração aprovados |
+| Regra UDP configurada no firewall da VM | Validado | Regra específica ativa e serviço para reaplicar após boot |
+| Conexão pela internet | Validado | Integração pública com três clientes aprovada em x86_64 e i386 após liberar a porta configurada na OCI |
 | Empacotamento Linux | Validado | Pacote alpha.1 gerado e manifesto verificado; alpha.2 registra a validação pública, sem mudança no executável |
 | Checkpoint Git da base | Validado | v0.1.0-alpha.2: rede pública testada; gameplay visual ainda pendente |
 
@@ -94,15 +94,15 @@ validação visual de dois jogadores no jogo.
 - [ ] Validar endereço e porta antes de tentar conectar, mostrando erros compreensíveis.
 - [ ] Oferecer ações de conectar e desconectar, com status visível da conexão.
 - [ ] Salvar IP e porta nas preferências locais do jogador e permitir editá-los.
-- [ ] Adaptar a configuração do cliente/launcher para receber a porta escolhida,
-  além do endereço; atualmente o launcher do jogo usa a porta fixa ${POKE_NET_PORT}.
+- [x] Permitir IP e porta via arquivo local ignorado pelo Git; menu no jogo ainda pendente.
 - [ ] Testar conexão com servidores e portas diferentes, configurações inválidas
   e persistência das preferências.
 
 Decisão do usuário: nesta fase, usar a VM atual para testes com amigos. Na versão
 futura, cada jogador deverá informar IP e porta do servidor pelo menu; a VM e
-seu endereço não serão uma dependência fixa do projeto. Nada disso está
-implementado nesta etapa; o launcher atual continua apontando para a VM.
+seu endereço não serão uma dependência fixa do projeto. O menu ainda não está
+implementado nesta etapa; o launcher lê IP e porta de um arquivo local
+preenchido pelo jogador, sem endpoint padrão publicado.
 
 ### To-do de configurações e textos
 

@@ -110,7 +110,7 @@ Acesso autenticado via host SSH `tet`, usuário ubuntu. Sistema Ubuntu 24.04.4 L
 x86_64, duas CPUs, cerca de 954 MiB de RAM e 38 GiB livres em disco. Esses recursos
 parecem adequados para testes iniciais de um relay pequeno; não houve benchmark.
 Não foram encontrados gcc, make ou Docker. Há Python 3 e systemd com gerenciador
-de usuário ativo. As regras INPUT terminam em REJECT, sem liberação UDP ${POKE_NET_PORT}.
+de usuário ativo. As regras INPUT terminam em REJECT, sem liberação UDP $POKE_NET_PORT.
 A rede Oracle/NSG não foi consultada. Nenhum pacote, serviço ou regra foi alterado.
 A implementação/deploy do servidor permanece pendente.
 
@@ -127,7 +127,7 @@ explícitas de rede pública e validação visual. Alterações foram feitas no 
 
 ### Decisões implementadas
 
-- Servidor relay C/ENet separado do jogo, até oito conexões totais, porta UDP ${POKE_NET_PORT}.
+- Servidor relay C/ENet separado do jogo, até oito conexões totais, porta UDP $POKE_NET_PORT.
 - Nenhuma ROM ou save enviado ao servidor. Identidade atribuída pela sessão ENet.
 - Protocolo aumentado para 2: JOIN confiável estabelece membros permitidos. LEAVE
   remove a permissão, evitando que posição atrasada recrie um jogador removido.
@@ -136,7 +136,7 @@ explícitas de rede pública e validação visual. Alterações foram feitas no 
   JOIN. Sequência repetida continua sendo rejeitada pela camada de sincronização.
 - Validação de campos/canal/tamanho, timeout de handshake e limite por conexão.
 - Serviço de usuário systemd com linger; limites de 128 MiB e uma CPU; restart
-  automático em falha. Firewall tem serviço separado que libera só UDP ${POKE_NET_PORT}.
+  automático em falha. Firewall tem serviço separado que libera só UDP $POKE_NET_PORT.
 - Port isolado recebe os fontes de rede atualizados no build; launcher separado
   configura a VM. Saves e configurações permanecem locais.
 
@@ -147,10 +147,10 @@ explícitas de rede pública e validação visual. Alterações foram feitas no 
 - Mesmo teste com `relay-test32`, usando objetos ENet i386 da build: aprovado.
 - Servidor compilado com GCC 13 no Ubuntu 24.04 da VM: aprovado.
 - Integração executada em 127.0.0.1 dentro da VM: aprovada, inclusive após restart.
-- Serviço ativo em 0.0.0.0:${POKE_NET_PORT}; firewall específico ativo; boot completo não testado.
+- Serviço ativo em 0.0.0.0:$POKE_NET_PORT; firewall específico ativo; boot completo não testado.
 - Executável Linux recompilado com protocolo 2 e diagnósticos de conexão.
 - Teste sem janela novamente aprovado: cena inicial e quadro 300 antes do timeout.
-- Teste público para ${POKE_NET_SERVER}:${POKE_NET_PORT} expirou. Contador UDP no firewall da VM
+- Teste público para $POKE_NET_SERVER:$POKE_NET_PORT expirou. Contador UDP no firewall da VM
   ficou em zero: bloqueio anterior à VM, possivelmente Security List/NSG Oracle.
   A regra necessária foi solicitada ao usuário; não há acesso OCI configurado.
 
@@ -179,9 +179,9 @@ anterior foi finalizado pelo PID específico do teste.
 
 ## Checkpoint v0.1.0-alpha.2 — Conectividade pública validada
 
-Após o usuário adicionar a ingress rule UDP ${POKE_NET_PORT} na rede Oracle, os comandos
-`build/pc-net/relay-test ${POKE_NET_SERVER} ${POKE_NET_PORT}` e
-`build/pc-net/relay-test32 ${POKE_NET_SERVER} ${POKE_NET_PORT}` passaram. Cada execução usa o cliente
+Após o usuário adicionar a ingress rule UDP $POKE_NET_PORT na rede Oracle, os comandos
+`build/pc-net/relay-test $POKE_NET_SERVER $POKE_NET_PORT` e
+`build/pc-net/relay-test32 $POKE_NET_SERVER $POKE_NET_PORT` passaram. Cada execução usa o cliente
 real do jogo e dois probes ENet. Foram verificados handshake, presença, posições,
 pacotes antigos/inválidos, entrada tardia, saída e reconexão pela internet.
 
@@ -197,3 +197,19 @@ apenas fontes e ferramentas de recompilação. Pacotes gerados são estritamente
 locais. A política está em distribution.md e as exclusões de artefatos foram
 ampliadas. O CI existente foi inspecionado: não há upload de ROM/jogo como
 artefato ou release. Nenhum pacote/executável foi publicado nesta sessão.
+
+## Configuração local e privacidade do endpoint
+
+Por instrução do usuário, o endpoint da VM não pode constar no material publicável.
+Foram removidos os valores da documentação, launchers, templates e pacotes futuros.
+O jogador preenche um modelo vazio em arquivo ignorado pelo Git; o parser não
+executa o conteúdo do arquivo e valida IPv4/porta. O ambiente pode sobrescrever
+os campos. O jogo agora lê IP e porta do ambiente, sem porta padrão no hook.
+O servidor exige uma porta explícita. O serviço já instalado na VM continua ativo,
+com sua configuração privada anterior; templates públicos foram parametrizados.
+
+Sete testes de configuração cobrem validação, precedência de ambiente, campos
+obrigatórios, CRLF/normalização e ausência de execução de comandos. O teste de
+integração com porta efêmera passou usando InitNetworkClientFromEnvironment.
+A build Linux foi recompilada. Checkpoints anteriores também precisam de
+sanitização, porque remover valores apenas no HEAD não protege o histórico.

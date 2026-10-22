@@ -66,6 +66,30 @@ u8 InitNetworkClient(const char *serverAddress, u16 port)
     return TRUE; // Connection and application handshake complete asynchronously.
 }
 
+// Environment is populated by the launcher from an ignored local configuration.
+u8 InitNetworkClientFromEnvironment(void)
+{
+    const char *address = getenv("POKE_NET_SERVER");
+    const char *portText = getenv("POKE_NET_PORT");
+    char *end;
+    unsigned long port;
+    if (address == NULL && portText == NULL)
+        return FALSE; // Offline launch.
+    if (address == NULL || *address == '\0' || portText == NULL || *portText == '\0'
+     || strspn(portText, "0123456789") != strlen(portText))
+    {
+        fprintf(stderr, "NET: configure POKE_NET_SERVER and POKE_NET_PORT locally\n");
+        return FALSE;
+    }
+    port = strtoul(portText, &end, 10);
+    if (*end != '\0' || port == 0 || port > 65535)
+    {
+        fprintf(stderr, "NET: invalid port (expected 1-65535)\n");
+        return FALSE;
+    }
+    return InitNetworkClient(address, (u16)port);
+}
+
 static void ReceivePacket(const ENetEvent *event)
 {
     const ENetPacket *packet = event->packet;

@@ -53,11 +53,10 @@ $(C_BUILDDIR)/net/enet/%.o: src/net/enet/%.c
     replace_once(target / "src/overworld.c", "    OverworldBasic();\n    if (fading)", '''    OverworldBasic();
     {
         static bool8 attempted;
-        const char *address = getenv("POKE_NET_SERVER");
-        if (!attempted && address != NULL)
+        if (!attempted)
         {
             attempted = TRUE;
-            InitNetworkClient(address, 25001);
+            InitNetworkClientFromEnvironment();
         }
         UpdateNetworkClient();
     }

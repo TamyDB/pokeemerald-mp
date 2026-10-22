@@ -24,7 +24,7 @@ pendentes de teste manual. Não afirmar que o marco inteiro foi concluído.
 8. Corrigidos conflitos de include/abs e integração SDL2_image com pkg-config.
 9. Implementado relay C para oito conexões e protocolo 2 com JOIN confiável.
 10. Instalados gcc/make/libc6-dev na VM, compilado e ativado o relay como serviço.
-11. Adicionada regra local UDP ${POKE_NET_PORT} por serviço separado, preservando as demais.
+11. Adicionada regra local UDP $POKE_NET_PORT por serviço separado, preservando as demais.
 12. Usuário adicionou a ingress rule na OCI; conectividade pública passou.
 13. Corrigido travamento de encerramento descoberto pelo teste sem janela.
 14. Criados roadmap, política de distribuição, scripts e pacotes estritamente locais.
@@ -40,8 +40,8 @@ pendentes de teste manual. Não afirmar que o marco inteiro foi concluído.
 | Relay local | Cliente real + dois probes: posições, entrada tardia, saída e reconexão aprovados | Callbacks de sprites simulados |
 | Relay i386 | Mesmo teste com cliente de 32 bits e objetos ENet da build aprovado | Sem renderização |
 | Relay na VM | Teste local da VM aprovado, inclusive após restart do serviço | Boot completo da VM não testado |
-| Internet x86_64/i386 | Ambos passaram contra ${POKE_NET_SERVER}:${POKE_NET_PORT} após regra OCI | Não equivale a ver dois jogadores na tela |
-| Firewall VM | Pacotes UDP ${POKE_NET_PORT} contados após abertura OCI | Não é teste de carga |
+| Internet x86_64/i386 | Ambos passaram contra $POKE_NET_SERVER:$POKE_NET_PORT após regra OCI | Não equivale a ver dois jogadores na tela |
+| Firewall VM | Pacotes UDP $POKE_NET_PORT contados após abertura OCI | Não é teste de carga |
 | Executável Linux | ELF i386; ldd resolveu bibliotecas; cena inicial e quadro 300 em teste de oito segundos | Sem inspeção visual/áudio/input |
 | Encerramento | Nova build terminou após o timeout sem precisar de SIGKILL | Sessões prolongadas ainda não testadas |
 | Pacotes locais | Manifestos SHA-256 conferidos; executável igual ao testado | Não incluem bibliotecas do sistema |
@@ -78,12 +78,12 @@ mesmo save. Pode-se usar duas cópias locais do pacote; não publicar essas cóp
 ## VM e operação
 
 Host SSH configurado: `tet`; comando é **`ssh tet`**, não `tet` no shell.
-Usuário ubuntu, IP público `${POKE_NET_SERVER}`, Ubuntu 24.04 x86_64, duas CPUs,
+Usuário ubuntu, endpoint privado na configuração local ignorada pelo Git, Ubuntu 24.04 x86_64, duas CPUs,
 aproximadamente 1 GiB RAM. Recursos parecem suficientes para testes pequenos;
 não há benchmark de oito jogadores.
 
 - Fontes e binário: `/home/ubuntu/pokeemerald-server`.
-- Relay: `build/pc-net/pokeemerald-server`, porta UDP ${POKE_NET_PORT}.
+- Relay: `build/pc-net/pokeemerald-server`, porta UDP $POKE_NET_PORT.
 - Unit do usuário: `pokeemerald-server.service`, linger habilitado.
 - Unit de sistema para firewall: `pokeemerald-udp.service`.
 - Limites do relay: 128 MiB RAM e uma CPU; restart em falha.
@@ -97,7 +97,7 @@ ssh tet 'systemctl --user restart pokeemerald-server'
 ```
 
 A ingress rule OCI foi criada pelo usuário: origem 0.0.0.0/0, UDP, origem todas,
-destino ${POKE_NET_PORT}, stateful. Já foi comprovada com tráfego público; não solicitar que
+destino $POKE_NET_PORT, stateful. Já foi comprovada com tráfego público; não solicitar que
 seja recriada sem evidência de regressão. O painel/API OCI não foi acessado.
 Não registrar chaves privadas ou credenciais na documentação.
 
@@ -117,7 +117,7 @@ python3 scripts/test_relay.py
 Para repetir o teste público (ocupa até três conexões temporárias):
 
 ```sh
-build/pc-net/relay-test ${POKE_NET_SERVER} ${POKE_NET_PORT}
+build/pc-net/relay-test $POKE_NET_SERVER $POKE_NET_PORT
 ```
 
 Para recriar o teste i386, após compilar o port:
@@ -137,11 +137,11 @@ fontes próprios podem excluir `src/net/enet` e `include/net/enet`.
 
 | Referência | Commit | Conteúdo |
 | --- | --- | --- |
-| v0.1.0-alpha.1 | 1e277ca47 | Base Linux/ENet, relay, testes, deploy e roadmap |
-| v0.1.0-alpha.2 | 07b900050 | Conectividade pública comprovada; mesmo executável |
-| Commit posterior | 82a5b662e | Política somente fontes/ferramentas no GitHub |
+| v0.1.0-alpha.1 | Consultar a tag | Base Linux/ENet, relay, testes, deploy e roadmap |
+| v0.1.0-alpha.2 | Consultar a tag | Conectividade pública comprovada; mesmo executável |
+| Commit posterior | Consultar git log | Política somente fontes/ferramentas no GitHub |
 
-Branch: `multiplayer/initial-linux`. `VERSION` permanece `0.1.0-alpha.2`.
+Branch: `multiplayer/initial-linux`. `VERSION` agora é `0.1.0-alpha.3`.
 Novos commits de documentação vêm depois das tags; consultar `git log -5 --oneline`
 para o HEAD atual. Para empacotar uma tag antiga, usar worktree/checkout limpo nessa
 tag e reconstruir ali; o empacotador exige que a tag corresponda ao HEAD.
@@ -181,5 +181,25 @@ identificadores internos e saves até existir uma decisão específica.
 O usuário definiu que a VM atual será usada inicialmente com amigos. Na versão
 futura, cada jogador informará o IP e a porta do servidor em um menu Multiplayer.
 O roadmap agora inclui edição e validação desses campos, conectar/desconectar,
-status e persistência local. O launcher atual aponta para a VM e usa porta ${POKE_NET_PORT};
+status e persistência local. O launcher atual aponta para a VM e usa porta $POKE_NET_PORT;
 a mudança de menu/configuração permanece apenas planejada.
+
+## Configuração privada do jogador
+
+Por determinação do usuário, IP e porta da VM não podem aparecer no conteúdo
+publicável nem no histórico compartilhável. O arquivo `config/multiplayer.env`
+é local e ignorado pelo Git; o modelo versionado tem os dois campos vazios.
+O launcher valida IPv4/porta e o jogo lê as duas variáveis, sem endpoint padrão.
+Esta seção substitui referências históricas a um launcher fixo na VM.
+O menu multiplayer permanece no backlog.
+
+A sanitização do histórico altera hashes dos commits locais anteriores. Usar as
+tags pelo nome e `git log` para obter os identificadores atualizados. Manifestos
+de pacotes antigos e o SOURCE_CHECKPOINT antigo da VM podem conter hashes locais
+anteriores; não são uma referência publicável após essa revisão de privacidade.
+O serviço existente da VM não foi alterado: seus valores continuam locais.
+
+Checkpoint alpha.3: configuração de endpoint privado parametrizada. Testes de
+configuração, cliente e integração com porta efêmera aprovados; build Linux
+recompilada e smoke test offline aprovado. O histórico anterior é sanitizado
+localmente antes de qualquer publicação. Nenhum push foi realizado.
