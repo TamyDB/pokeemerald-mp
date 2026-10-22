@@ -1,4 +1,11 @@
-### Setting up WSL1 (Legacy Portion)
+# WSL1 legado — referência GBA
+
+[Documentação](README.md) · [Instalação GBA](../INSTALL.md) · [Build multiplayer Linux](linux-playable.md)
+
+> Complemento histórico herdado do upstream, mantido em inglês. Não é necessário
+> para o port multiplayer Linux e não foi revalidado nesta revisão documental.
+
+## Setting up WSL1 (Legacy Portion)
 
 1. Certain packages are required to build pokeemerald. Install these packages by running the following command:
 
@@ -38,4 +45,4 @@
     source /etc/profile.d/devkit-env.sh
     ```
 
-Proceed to [Choosing where to store pokeemerald (WSL1) of the current INSTALL.md](/INSTALL.md#choosing-where-to-store-pokeemerald-WSL1).
+Proceed to [Choosing where to store pokeemerald (WSL1) of the current INSTALL.md](../INSTALL.md#choosing-where-to-store-pokeemerald-wsl1).

@@ -1,9 +1,24 @@
-# Roadmap — Pokémon Emerald Multiplayer
+# Roadmap
+
+[Início](README.md) · [Documentação](docs/README.md) · [Changelog](CHANGELOG.md) · [Resumo de trabalho](docs/WORK_SUMMARY.md)
 
 Objetivo atual: produzir uma build Linux reproduzível com conexão ENet e jogadores
 visíveis no mesmo mapa. Novas mecânicas e QoL entram depois dessa base.
 
-Atualizado em 2026-10-21. Registro técnico: [decisões](docs/multiplayer-decisions.md).
+**Revisão documental:** 22/10/2026 · **Últimas evidências:** 21/10/2026.
+Registro técnico: [decisões](docs/multiplayer-decisions.md).
+
+## Navegação
+
+- [Base funcional Linux e servidor](#marco-1--base-funcional-linux-e-servidor)
+- [Estabilidade das sessões](#marco-2--estabilidade-das-sessões)
+- [Possíveis features multiplayer](#possíveis-features-multiplayer)
+- [Melhorias de qualidade de vida](#possíveis-melhorias-de-qol)
+- [Detalhamento das propostas](#detalhamento-das-propostas)
+- [Critério para salvar checkpoints](#critério-para-salvar-checkpoints)
+
+As propostas não têm compromisso de prazo. O Marco 1 permanece aberto até a
+validação visual e os testes manuais indicados abaixo.
 
 ## Como ler os status
 
@@ -31,7 +46,8 @@ Atualizado em 2026-10-21. Registro técnico: [decisões](docs/multiplayer-decisi
 | Regra UDP configurada no firewall da VM | Validado | Regra específica ativa e serviço para reaplicar após boot |
 | Conexão pela internet | Validado | Integração pública com três clientes aprovada em x86_64 e i386 após liberar a porta configurada na OCI |
 | Empacotamento Linux | Validado | Pacote alpha.1 gerado e manifesto verificado; alpha.2 registra a validação pública, sem mudança no executável |
-| Checkpoint Git da base | Validado | v0.1.0-alpha.2: rede pública testada; gameplay visual ainda pendente |
+| Checkpoints de fontes | Validado | alpha.1: base; alpha.2: rede pública; alpha.3: configuração privada. Gameplay visual pendente |
+| Configuração privada de IPv4 e porta | Validado | Arquivo local/ambiente, validação e modelos públicos vazios na alpha.3 |
 
 ### Critérios para concluir o marco
 
@@ -87,7 +103,9 @@ validação visual de dois jogadores no jogo.
 | Distribuição Linux mais simples | Proposto | Avaliar pacote portátil após estabilizar dependências |
 | Android e Windows com multiplayer | Proposto | Exigem compilação e testes próprios; ainda não validados |
 
-### To-do do menu multiplayer
+## Detalhamento das propostas
+
+### Menu multiplayer
 
 - [ ] Adicionar uma opção Multiplayer ao menu do jogo.
 - [ ] Permitir que cada jogador informe o IP e a porta do servidor desejado.
@@ -104,7 +122,7 @@ seu endereço não serão uma dependência fixa do projeto. O menu ainda não es
 implementado nesta etapa; o launcher lê IP e porta de um arquivo local
 preenchido pelo jogador, sem endpoint padrão publicado.
 
-### To-do de configurações e textos
+### Configurações e textos
 
 - [ ] Definir com o usuário quais novas opções entrarão no menu de configurações.
 - [ ] Auditar configurações existentes do port para evitar duplicação.
@@ -118,15 +136,13 @@ preenchido pelo jogador, sem endpoint padrão publicado.
 
 Esses itens foram solicitados para uma etapa futura e ainda não foram implementados.
 
-## Fluxo de versionamento
+## Critério para salvar checkpoints
 
-1. Trabalhar na feature e atualizar este roadmap.
-2. Executar os testes correspondentes e registrar resultados e limitações.
-3. Salvar as fontes em um commit com escopo claro.
-4. Marcar marcos testados com tags; a primeira linha será `v0.1.0-alpha.N`.
-5. Manter builds e manifestos em `build/releases/`, fora do Git.
-6. Nunca incluir ROM, chaves SSH, saves, credenciais ou caches nos commits.
+Uma entrega só passa a validada quando houver evidências registradas e limites
+explícitos. Atualize os itens correspondentes, execute os testes pertinentes e
+registre o resultado no [resumo de trabalho](docs/WORK_SUMMARY.md).
 
-Recuperação deve preservar alterações em andamento: usar um novo branch/worktree
-no checkpoint escolhido. Não usar reset destrutivo para experimentar uma versão.
-Um checkpoint não torna pendências automaticamente concluídas.
+Mudanças por versão ficam no [changelog](CHANGELOG.md). O procedimento para
+VERSION, commits, tags, worktrees e pacotes locais está no
+[guia de versionamento](docs/versioning.md). Tags não autorizam distribuição do
+jogo compilado nem concluem automaticamente as pendências deste roadmap.

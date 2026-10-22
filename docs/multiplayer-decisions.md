@@ -1,8 +1,25 @@
-# Registro de decisões e validação do multiplayer
+# Decisões técnicas e validação
+
+[Início](../README.md) · [Documentação](README.md) · [Resumo atual](WORK_SUMMARY.md) · [Changelog](../CHANGELOG.md)
 
 Este documento registra contexto, decisões técnicas, justificativas e evidências.
 Deve ser atualizado junto com alterações de comportamento e novos testes.
 As instruções de uso e o contrato do servidor estão em [multiplayer.md](multiplayer.md).
+
+> **Leitura histórica:** cada entrada descreve o estado observado naquele momento.
+> Bloqueios iniciais de dependências, servidor e rede pública foram resolvidos nas
+> entradas seguintes. O estado consolidado está no resumo atual; a validação visual
+> de dois jogadores permanece pendente.
+
+## Navegação
+
+- [Integração inicial](#2026-10-21--integração-inicial)
+- [Preparação Linux](#2026-10-21--preparação-da-versão-linux)
+- [Servidor e primeiro checkpoint](#2026-10-21--servidor-mínimo-e-primeiro-checkpoint)
+- [Conectividade pública — alpha.2](#checkpoint-v010-alpha2--conectividade-pública-validada)
+- [Configuração privada — alpha.3](#configuração-local-e-privacidade-do-endpoint)
+- [Publicação de fontes](#publicação-dos-fontes-no-github)
+- [Como registrar alterações](#como-registrar-próximas-alterações)
 
 ## 2026-10-21 — Integração inicial
 
@@ -82,7 +99,7 @@ O comando inicial usava `SDL2-devel.i686`, que o DNF não resolveu. No Fedora 44
 o pacote de desenvolvimento é `sdl2-compat-devel.i686`; ele oferece a API SDL2
 sobre SDL3. O comando em linux-playable.md foi corrigido. Não usar
 `--skip-unavailable`: isso deixaria uma dependência necessária ausente.
-Fonte: https://packages.fedoraproject.org/pkgs/sdl2-compat/sdl2-compat-devel/
+Fonte: [pacote sdl2-compat-devel no Fedora](https://packages.fedoraproject.org/pkgs/sdl2-compat/sdl2-compat-devel/).
 
 ### Resultado do build e inicialização Linux
 
@@ -106,7 +123,7 @@ nos canais 0 e 1 por UDP real local; ambos passaram. Exige acesso a sockets loca
 
 ### Avaliação da VM Oracle via SSH
 
-Acesso autenticado via host SSH `tet`, usuário ubuntu. Sistema Ubuntu 24.04.4 LTS
+Acesso autenticado por SSH com o usuário administrativo da VM de referência. Sistema Ubuntu 24.04.4 LTS
 x86_64, duas CPUs, cerca de 954 MiB de RAM e 38 GiB livres em disco. Esses recursos
 parecem adequados para testes iniciais de um relay pequeno; não houve benchmark.
 Não foram encontrados gcc, make ou Docker. Há Python 3 e systemd com gerenciador
@@ -114,8 +131,8 @@ de usuário ativo. As regras INPUT terminam em REJECT, sem liberação UDP $POKE
 A rede Oracle/NSG não foi consultada. Nenhum pacote, serviço ou regra foi alterado.
 A implementação/deploy do servidor permanece pendente.
 
-`Host tet` em ~/.ssh/config define um apelido para `ssh tet`; não cria um comando
-shell chamado `tet`.
+Um apelido em `~/.ssh/config` é usado como argumento de `ssh`; ele não cria
+um comando de shell. Cada administrador define seu próprio destino SSH.
 
 ## 2026-10-21 — Servidor mínimo e primeiro checkpoint
 

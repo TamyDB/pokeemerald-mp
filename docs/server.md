@@ -1,108 +1,156 @@
-# Servidor ENet mínimo
+# Servidor relay ENet
 
-O servidor em `server/main.c` implementa apenas presença e posições de até oito
-conexões. Não carrega ROM, save, scripts de mapa ou dados de Pokémon. O limite é
-de oito conexões totais; o cliente pode representar até oito remotos, condicionado
-aos slots de Object Events disponíveis. Servidor ainda é experimental.
+[Início](../README.md) · [Documentação](README.md) · [Protocolo](multiplayer.md) · [Operação registrada](WORK_SUMMARY.md#vm-e-operação)
 
-## Protocolo 2
+O relay em `server/main.c` encaminha presença e posições de até **oito conexões
+totais**. Não carrega ROM, save, scripts de mapa ou dados de Pokémon. É experimental:
+não valida progressão ou colisão e não fornece autenticação de jogadores.
 
-Os tipos são definidos em `include/net/net_client.h`; inteiros multibyte em big
-endian. O connect data do ENet e o HELLO precisam informar a versão 2.
+## Navegação
 
-1. Cliente envia HELLO confiável no canal 1.
-2. Servidor envia WELCOME com ID exclusivo daquela execução do servidor.
-3. Servidor envia JOINs confiáveis para estabelecer a lista de participantes.
-4. Cliente envia POSITION no canal 0. Servidor valida campos e sequência,
-   limita a 40 posições aceitas por segundo por conexão e encaminha aos demais.
-5. Servidor repete snapshots a cada 50 ms para recuperar o estado de entradas
-   tardias e de posições que tenham chegado antes do JOIN.
-6. Servidor envia LEAVE confiável na saída. Cliente remove o membro e ignora
-   posições seguintes daquele ID, até existir um novo JOIN válido.
+- [Compilar e executar](#compilar-e-executar)
+- [Testar o relay](#testar-o-relay)
+- [Contrato do protocolo](#contrato-do-protocolo)
+- [Serviços e operação remota](#serviços-e-operação-remota)
+- [Rede e firewall](#rede-e-firewall)
+- [Conectar o jogo](#conectar-o-jogo)
 
-A versão 1 não tinha controle de entrada confiável; por isso clientes antigos
-não são compatíveis. IDs não são reutilizados na mesma execução do servidor.
-São reservados pelo servidor, nunca escolhidos pelo remetente da posição.
-Clientes sem handshake são removidos após 10 segundos.
+## Compilar e executar
 
-O relay não valida progressão ou colisão nem fornece autenticação de jogadores.
-Chat, batalhas e trocas não estão implementados.
+Na raiz do projeto, com compilador C, Make e Python 3 disponíveis:
 
-## Compilar e testar
+```bash
+make -f Makefile_pc server
+build/pc-net/pokeemerald-server 25001
+```
 
-```sh
+A porta é explícita; `25001` é um exemplo local. Mantenha o terminal aberto ou
+configure um serviço. Para conectar no mesmo computador:
+
+```bash
+POKE_NET_SERVER=127.0.0.1 POKE_NET_PORT=25001 ./scripts/play_multiplayer_linux.sh
+```
+
+O relay não depende das bibliotecas gráficas i686 do jogo. A implantação de
+referência foi compilada no Ubuntu 24.04 x86_64 com GCC, Make e libc6-dev.
+
+## Testar o relay
+
+```bash
 make -f Makefile_pc server relay-test test-network
 python3 scripts/test_relay.py
 ```
 
 A integração usa o cliente real do jogo com callbacks de sincronização simulados
-e dois probes ENet adicionais. Valida handshake, IDs, posições, pacotes antigos,
-campos inválidos, canal incorreto, entrada tardia, saída e reconexão.
-O teste requer permissão para sockets UDP. Não verifica sprites na tela.
+e dois probes ENet. Verifica handshake, IDs, posições, pacotes antigos, campos
+inválidos, canal incorreto, entrada tardia, saída e reconexão.
+Requer sockets UDP; não verifica sprites na tela.
 
-Para testar um servidor existente (cria até três conexões temporárias):
+Para testar outro servidor, preencha a configuração local conforme o
+[README](../README.md#4-configurar-e-iniciar) e execute:
 
-```sh
+```bash
+source scripts/multiplayer_config.sh
+LoadMultiplayerConfig "$PWD/config/multiplayer.env"
 build/pc-net/relay-test "$POKE_NET_SERVER" "$POKE_NET_PORT"
 ```
 
-## Instalação atual
+O resultado esperado é `Relay integration passed`. O teste ocupa até três
+conexões temporárias; confira as vagas disponíveis antes de executá-lo.
 
-VM `tet`, usuário `ubuntu`, Ubuntu 24.04 x86_64. Fontes em
-`/home/ubuntu/pokeemerald-server`; binário em `build/pc-net/pokeemerald-server`
-dentro dessa pasta. gcc, make e libc6-dev foram instalados via apt.
+## Contrato do protocolo
 
-Serviço do usuário: `deploy/pokeemerald-server.service`. Linger habilitado para
-iniciar sem login interativo. Regra local da porta reaplicada pelo serviço de
-sistema `deploy/pokeemerald-udp.service`. As regras existentes não foram removidas.
+| Etapa | Comportamento |
+| --- | --- |
+| Conexão | Connect data ENet e HELLO informam protocolo 2 |
+| HELLO / WELCOME | Canal 1 confiável; servidor atribui ID exclusivo de sua execução |
+| JOIN | Canal 1 confiável estabelece membros cujas posições podem ser aceitas |
+| POSITION | Canal 0; servidor valida campos e sequência e aceita até 40 posições/s por conexão |
+| Snapshot | Repetido a cada 50 ms para recuperar estado de entradas tardias e posições anteriores ao JOIN |
+| LEAVE | Canal 1 confiável remove o membro; novas posições daquele ID são ignoradas sem JOIN válido |
 
-```sh
-ssh tet 'systemctl --user status pokeemerald-server'
-ssh tet 'journalctl --user -u pokeemerald-server -n 50 --no-pager'
-ssh tet 'systemctl --user restart pokeemerald-server'
+Inteiros multibyte são big endian; tipos e tamanhos estão em
+`include/net/net_client.h`. IDs não são reutilizados na mesma execução e não são
+escolhidos pelo remetente. Clientes sem handshake saem após dez segundos.
+Clientes de protocolo 1 não são compatíveis. Detalhes: [protocolo](multiplayer.md).
+
+O cliente tem até oito slots remotos, sujeitos a Object Events livres; o limite
+de oito conexões do relay inclui o jogador local. Chat, batalhas e trocas não
+estão implementados.
+
+## Serviços e operação remota
+
+Os templates versionados descrevem a instalação de referência; não são um
+instalador automático. Ajuste usuário, caminhos e porta ao ambiente de destino.
+
+| Arquivo | Responsabilidade |
+| --- | --- |
+| `deploy/pokeemerald-server.service` | Serviço systemd de usuário para o relay |
+| `deploy/pokeemerald-udp.service` | Serviço de sistema para a regra UDP local |
+| `config/server.env.example` | Modelo sem porta privada preenchida |
+| `~/.config/pokeemerald-server/server.env` | Porta do serviço de usuário no servidor |
+| `/etc/pokeemerald-server.env` | Porta da regra local, administrada por root |
+
+Os dois arquivos privados precisam indicar a mesma porta em `POKE_NET_PORT`.
+Não publicar seus valores. A referência usa fontes em `~/pokeemerald-server` no
+usuário remoto e binário relativo `build/pc-net/pokeemerald-server`.
+O serviço tem restart em falha, limite de 128 MiB e uma CPU. Linger foi habilitado
+na instalação de referência para execução sem login interativo.
+
+Para operar uma instalação já configurada, substitua o destino SSH abaixo:
+
+```bash
+SSH_HOST='usuario@servidor'
+ssh "$SSH_HOST" 'systemctl --user status pokeemerald-server'
+ssh "$SSH_HOST" 'journalctl --user -u pokeemerald-server -n 50 --no-pager'
+ssh "$SSH_HOST" 'systemctl --user restart pokeemerald-server'
 ```
 
-Para parar o relay: `systemctl --user stop pokeemerald-server` na VM.
-Para desabilitar: `systemctl --user disable --now pokeemerald-server`.
-Para retirar a liberação local: `sudo systemctl disable --now pokeemerald-udp`.
+Também pode usar um apelido do seu `~/.ssh/config`. O destino SSH é configuração
+pessoal; nenhum apelido específico é exigido pelo projeto.
 
-## Rede Oracle
+No terminal remoto, quando necessário:
 
-O teste dentro da VM passou. O primeiro teste público expirou sem pacotes no
-firewall da VM. Após o usuário criar a ingress rule na OCI, a integração pública
-passou com clientes x86_64 e i386: handshake, posições, descarte de estado antigo
-e inválido, entrada tardia, saída e reconexão. A conexão pública está validada;
-sprites e gameplay ainda exigem teste manual.
-
-Na Security List da subnet ou NSG da VNIC, permitir entrada stateful:
-
-| Campo | Valor |
+| Ação | Comando |
 | --- | --- |
-| Origem CIDR | 0.0.0.0/0 |
+| Parar o relay | `systemctl --user stop pokeemerald-server` |
+| Desabilitar o relay | `systemctl --user disable --now pokeemerald-server` |
+| Desabilitar a liberação UDP local | `sudo systemctl disable --now pokeemerald-udp` |
+
+Essas ações afetam sessões conectadas. O reinício do serviço foi validado em
+21/10/2026; boot completo da VM e carga de oito jogadores não foram testados.
+
+## Rede e firewall
+
+Para conexões externas, a porta UDP escolhida precisa estar acessível no sistema
+e na infraestrutura. Se estiver atrás de NAT, confira também o encaminhamento
+da porta. Não é necessário abrir TCP para o relay ENet.
+
+Na implantação de referência Oracle, a regra de entrada foi:
+
+| Campo | Valor de referência |
+| --- | --- |
+| Origem CIDR | `0.0.0.0/0` |
 | Protocolo | UDP |
 | Porta de origem | Todas |
-| Porta de destino | $POKE_NET_PORT |
+| Porta de destino | A configurada em `POKE_NET_PORT` |
+| Tipo | Stateful |
 
-Referência: [documentação de Security Lists da Oracle](https://docs.oracle.com/en-us/iaas/Content/Network/Concepts/creating-securitylist.htm).
-A regra já foi aplicada pelo usuário e validada pelo teste público. Não é necessário abrir TCP
-$POKE_NET_PORT. Não foi acessado o painel/API OCI nesta entrega.
+Essa regra já foi aplicada pelo administrador e os testes públicos passaram em
+x86_64 e i386. Não há motivo para recriá-la sem evidência de regressão.
+O painel/API OCI não foi acessado durante a implementação. Referência herdada:
+[Security Lists da Oracle](https://docs.oracle.com/en-us/iaas/Content/Network/Concepts/creating-securitylist.htm).
 
-## Jogar
+## Conectar o jogo
 
-```sh
+O jogador preenche `config/multiplayer.env` a partir do modelo público ou fornece
+`POKE_NET_SERVER` e `POKE_NET_PORT` no ambiente. O launcher não tem servidor padrão:
+
+```bash
 ./scripts/play_multiplayer_linux.sh
 ```
 
-O jogador preenche IP e porta em `config/multiplayer.env`, usando o modelo
-versionado `config/multiplayer.env.example`. O arquivo preenchido é ignorado
-pelo Git. A conexão começa ao
-entrar no overworld. Duas instâncias locais precisam de diretórios de trabalho
-separados para não compartilharem save/config simultaneamente.
-Para outro servidor, edite os dois campos locais ou forneça
-`POKE_NET_SERVER` e `POKE_NET_PORT` pelo ambiente. O servidor exige uma porta
-explícita na linha de comando: `build/pc-net/pokeemerald-server "$POKE_NET_PORT"`.
-
-Os templates systemd não contêm endpoint da VM. Para instalá-los, preencha
-`POKE_NET_PORT` em `~/.config/pokeemerald-server/server.env` (serviço do usuário)
-e `/etc/pokeemerald-server.env` (regra local, administrada por root). O modelo
-está em `config/server.env.example`; os arquivos preenchidos não são publicados.
+A conexão começa no overworld. Duas instâncias locais devem ter diretórios
+separados para preservar saves/configurações. Consulte o
+[roteiro de teste visual](../README.md#verificar-o-funcionamento).
+Conectividade pública aprovada não equivale a validação visual da gameplay.

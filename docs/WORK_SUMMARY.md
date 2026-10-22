@@ -1,35 +1,36 @@
-# Resumo do trabalho e passagem de contexto
+# Resumo de trabalho e retomada
 
-Estado registrado em 2026-10-21, fuso America/Bahia. Leia primeiro
-[CONTEXT.md](../CONTEXT.md) para objetivo, arquitetura e restrições permanentes.
-Este documento registra uma fotografia do estado; confirme processos/serviços
-novamente quando retomar uma sessão muito tempo depois.
+[Início](../README.md) · [Documentação](README.md) · [Contexto](../CONTEXT.md) · [Histórico de trabalho](history/2026-10-21.md)
+
+**Organização documental:** 22/10/2026 · **Últimas evidências operacionais:** 21/10/2026, America/Bahia.
+
+Esta página consolida o ponto de retomada. Serviços e processos não foram
+reconsultados durante a organização documental. O relato completo da sessão
+anterior está preservado no histórico; resultados antigos não comprovam o estado
+atual da VM.
 
 ## Resultado atual
 
-Há um executável Linux i386 compilado, um relay ENet instalado na Oracle e testes
-públicos aprovados. **Ainda não foi validada visualmente a sessão de dois jogadores
-no jogo.** Gameplay prolongada, input, áudio e persistência do save permanecem
-pendentes de teste manual. Não afirmar que o marco inteiro foi concluído.
+Há um executável Linux i386 compilado e um relay ENet instalado na Oracle.
+Os testes públicos passaram com clientes x86_64 e i386. **A sessão visual com dois
+jogadores ainda não foi validada.** Input, áudio, save e sessões prolongadas
+permanecem pendentes de teste manual.
 
-## O que foi feito
+Checkpoint declarado: `v0.1.0-alpha.3`, protocolo 2. O launcher exige IP e porta
+privados por configuração local. O branch `multiplayer/initial-linux` e as três
+tags alpha foram publicados com autorização, após sanitização; nenhuma build,
+ROM, configuração pessoal ou valor de endpoint foi publicado. O master foi preservado.
 
-1. Identificado que o checkout raiz é GBA e não contém o port SDL2 esperado.
-2. ENet incorporado com revisão fixa e licença; Makefile GBA exclui `src/net`.
-3. Criados protocolo, cliente, sincronização de Object Events e hook no overworld.
-4. Adicionados testes de cliente, sincronização e transporte UDP real.
-5. Obtido e preparado o port upstream em `build/linux-port`, sem substituir a raiz.
-6. Conferida a ROM fornecida pelo usuário pelo hash esperado, sem modificá-la.
-7. Usuário instalou as dependências i686 no Fedora; build Linux compilou.
-8. Corrigidos conflitos de include/abs e integração SDL2_image com pkg-config.
-9. Implementado relay C para oito conexões e protocolo 2 com JOIN confiável.
-10. Instalados gcc/make/libc6-dev na VM, compilado e ativado o relay como serviço.
-11. Adicionada regra local UDP $POKE_NET_PORT por serviço separado, preservando as demais.
-12. Usuário adicionou a ingress rule na OCI; conectividade pública passou.
-13. Corrigido travamento de encerramento descoberto pelo teste sem janela.
-14. Criados roadmap, política de distribuição, scripts e pacotes estritamente locais.
-15. Salvos commits e tags de checkpoint; posteriormente publicados apenas fontes
-    e documentação sanitizados, com autorização do usuário. Nenhum upload do jogo.
+## Próximos passos
+
+1. Seguir o teste de duas instâncias no [README](../README.md#verificar-o-funcionamento), com pastas e saves separados.
+2. Confirmar presença, movimento, orientação, troca de mapa, saída e NPCs.
+3. Verificar controles, áudio e save; registrar logs e observações.
+4. Corrigir regressões, executar os testes pertinentes e atualizar o roadmap.
+5. Salvar o próximo checkpoint somente com evidências e limites explícitos.
+
+Menu Multiplayer, novas configurações e nomes próprios com inicial maiúscula
+continuam no [backlog](../ROADMAP.md); não foram implementados nessa sessão.
 
 ## Evidências e limites
 
@@ -64,7 +65,7 @@ pendentes de teste manual. Não afirmar que o marco inteiro foi concluído.
 
 ## Ambiente local e artefatos
 
-Workspace: `/home/tamy/Projetos/pokeemerald-mp`, Fedora 44.
+Checkout: pasta escolhida ao clonar o projeto. Ambiente validado: Fedora 44.
 
 - ROM local: `Pokemon - Emerald Version (USA, Europe).gba` — ignorada pelo Git.
 - Port preparado e binário: `build/linux-port/pokeemerald`.
@@ -78,12 +79,13 @@ mesmo save. Pode-se usar duas cópias locais do pacote; não publicar essas cóp
 
 ## VM e operação
 
-Host SSH configurado: `tet`; comando é **`ssh tet`**, não `tet` no shell.
-Usuário ubuntu, endpoint privado na configuração local ignorada pelo Git, Ubuntu 24.04 x86_64, duas CPUs,
+Os comandos abaixo usam `SSH_HOST`, que deve conter um host ou apelido SSH
+configurado por quem administra o servidor. Não há apelido obrigatório.
+Na instalação de referência: Ubuntu 24.04 x86_64, duas CPUs, endpoint privado na configuração local ignorada pelo Git,
 aproximadamente 1 GiB RAM. Recursos parecem suficientes para testes pequenos;
 não há benchmark de oito jogadores.
 
-- Fontes e binário: `/home/ubuntu/pokeemerald-server`.
+- Fontes e binário: `~/pokeemerald-server` no usuário remoto.
 - Relay: `build/pc-net/pokeemerald-server`, porta UDP $POKE_NET_PORT.
 - Unit do usuário: `pokeemerald-server.service`, linger habilitado.
 - Unit de sistema para firewall: `pokeemerald-udp.service`.
@@ -91,10 +93,12 @@ não há benchmark de oito jogadores.
 - `SOURCE_CHECKPOINT` na VM registra alpha.1, origem dos fontes do servidor.
   Alpha.2 só atualizou documentação/validação pública, sem mudar o servidor.
 
-```sh
-ssh tet 'systemctl --user status pokeemerald-server'
-ssh tet 'journalctl --user -u pokeemerald-server -n 50 --no-pager'
-ssh tet 'systemctl --user restart pokeemerald-server'
+```bash
+# Defina seu destino SSH antes de executar os comandos.
+SSH_HOST='usuario@servidor'
+ssh "$SSH_HOST" 'systemctl --user status pokeemerald-server'
+ssh "$SSH_HOST" 'journalctl --user -u pokeemerald-server -n 50 --no-pager'
+ssh "$SSH_HOST" 'systemctl --user restart pokeemerald-server'
 ```
 
 A ingress rule OCI foi criada pelo usuário: origem 0.0.0.0/0, UDP, origem todas,
@@ -134,84 +138,35 @@ Não interpretar esse bloqueio como defeito do jogo ou dependência ausente.
 ENet foi mantido como upstream, inclusive whitespace; checks de formatação dos
 fontes próprios podem excluir `src/net/enet` e `include/net/enet`.
 
-## Checkpoints salvos
+## Configuração e referências de versão
 
-| Referência | Commit | Conteúdo |
-| --- | --- | --- |
-| v0.1.0-alpha.1 | Consultar a tag | Base Linux/ENet, relay, testes, deploy e roadmap |
-| v0.1.0-alpha.2 | Consultar a tag | Conectividade pública comprovada; mesmo executável |
-| Commit posterior | Consultar git log | Política somente fontes/ferramentas no GitHub |
+`config/multiplayer.env` é privado e ignorado pelo Git. O modelo público vem com
+campos vazios; o launcher valida IPv4 e porta, sem executar código do arquivo.
+A configuração do ambiente tem prioridade. O serviço existente da VM manteve
+seus valores privados; os templates públicos foram parametrizados.
 
-Branch: `multiplayer/initial-linux`. `VERSION` agora é `0.1.0-alpha.3`.
-Novos commits de documentação vêm depois das tags; consultar `git log -5 --oneline`
-para o HEAD atual. Para empacotar uma tag antiga, usar worktree/checkout limpo nessa
-tag e reconstruir ali; o empacotador exige que a tag corresponda ao HEAD.
+Na alpha.3, testes de configuração e cliente, integração com porta efêmera,
+recompilação Linux e smoke test offline foram aprovados. Isso não acrescenta
+validação visual ao primeiro marco.
 
-## Próximos passos recomendados
+A sanitização anterior à publicação alterou hashes locais. Manifestos antigos e
+o `SOURCE_CHECKPOINT` da VM podem referenciar hashes anteriores; consulte as tags
+publicadas pelo nome e o Git para obter a referência atual. Não mover tags nem
+refazer a sanitização sem necessidade.
 
-1. Testar duas instâncias/jogadores visualmente no mesmo mapa contra a VM.
-2. Verificar movimento, orientação, troca de mapa, saída e preservação dos NPCs.
-3. Verificar input, áudio e save sem compartilhar o mesmo diretório entre instâncias.
-4. Registrar evidências e corrigir regressões antes de marcar o Marco 1 concluído.
-5. Executar testes pertinentes, salvar commit e tag do próximo marco validado.
-6. Só depois priorizar propostas de QoL/gameplay do roadmap com o usuário.
+Histórico por checkpoint: [changelog](../CHANGELOG.md). Procedimentos de tags e
+pacotes: [versionamento](versioning.md).
 
-Limites conhecidos: sem reconexão automática, polling suspenso em menus/batalhas,
-sprite Brendan por tile, sem interpolação, chat, batalhas ou trocas. Não ampliar
-o escopo silenciosamente. Atualizar este resumo e o roadmap após mudanças relevantes.
+## Limitações conhecidas
 
-## Guia de execução atualizado
+Sem reconexão automática; polling suspenso em menus/batalhas; sprite Brendan por
+tile, sem interpolação, chat, batalhas ou trocas multiplayer. O teste com oito
+jogadores e o boot completo da VM não foram validados.
 
-O README principal agora ensina execução imediata, controles, recompilação,
-testes automatizados e teste visual com dois jogadores. O bloco de teste manual
-cria diretórios únicos em `build/playtests` e logs separados, preservando o save
-da build normal. Os links locais e a sintaxe dos blocos Bash foram verificados.
-Não houve nova validação visual; esse é o próximo teste a realizar com o usuário.
+## Organização documental de 22/10/2026
 
-## Novos itens de backlog solicitados
-
-O usuário solicitou registrar, sem implementar nesta etapa, novas opções de
-configuração (lista específica ainda a definir) e mudança dos nomes próprios
-exibidos em caixa alta para inicial maiúscula, como BRENDAN → Brendan. O roadmap
-inclui levantamento, persistência das configurações, revisão de nomes compostos
-e verificação visual dos textos. Preservar nomes escolhidos pelo jogador,
-identificadores internos e saves até existir uma decisão específica.
-
-## Menu multiplayer e servidores personalizados — backlog
-
-O usuário definiu que a VM atual será usada inicialmente com amigos. Na versão
-futura, cada jogador informará o IP e a porta do servidor em um menu Multiplayer.
-O roadmap agora inclui edição e validação desses campos, conectar/desconectar,
-status e persistência local. O launcher atual aponta para a VM e usa porta $POKE_NET_PORT;
-a mudança de menu/configuração permanece apenas planejada.
-
-## Configuração privada do jogador
-
-Por determinação do usuário, IP e porta da VM não podem aparecer no conteúdo
-publicável nem no histórico compartilhável. O arquivo `config/multiplayer.env`
-é local e ignorado pelo Git; o modelo versionado tem os dois campos vazios.
-O launcher valida IPv4/porta e o jogo lê as duas variáveis, sem endpoint padrão.
-Esta seção substitui referências históricas a um launcher fixo na VM.
-O menu multiplayer permanece no backlog.
-
-A sanitização do histórico altera hashes dos commits locais anteriores. Usar as
-tags pelo nome e `git log` para obter os identificadores atualizados. Manifestos
-de pacotes antigos e o SOURCE_CHECKPOINT antigo da VM podem conter hashes locais
-anteriores; não são uma referência publicável após essa revisão de privacidade.
-O serviço existente da VM não foi alterado: seus valores continuam locais.
-
-Checkpoint alpha.3: configuração de endpoint privado parametrizada. Testes de
-configuração, cliente e integração com porta efêmera aprovados; build Linux
-recompilada e smoke test offline aprovado. O histórico anterior é sanitizado
-localmente antes da primeira publicação. O branch e as tags sanitizadas foram
-posteriormente enviados ao GitHub após autorização do usuário.
-
-## Publicação dos fontes autorizada
-
-O usuário autorizou o envio após concluir a remoção do endpoint privado. Foi
-feita auditoria dos oito commits locais, três tags e arquivos novos/modificados.
-O branch `multiplayer/initial-linux` e as tags alpha.1/alpha.2/alpha.3 foram enviados
-para `TamyDB/pokeemerald-mp`, preservando o master. HTTPS não tinha credenciais;
-a autenticação SSH existente funcionou. Não foram publicadas builds, ROM,
-configurações locais ou valores do endpoint privado. Não criar GitHub Releases
-com binários. Não refazer a sanitização nem mover tags já publicadas sem necessidade.
+README reorganizado para apresentação, instalação, arquitetura e objetivos.
+Documentação agrupada por finalidade em um índice; criados changelog e guia de
+versionamento; a passagem de contexto anterior foi arquivada com os caminhos e destinos SSH generalizados.
+Essa atualização é documental: não declara novos testes de gameplay ou rede,
+não altera VERSION nem cria uma nova tag.

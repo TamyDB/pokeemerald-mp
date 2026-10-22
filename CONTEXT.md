@@ -1,106 +1,95 @@
-# Contexto do projeto — leia ao retomar
+# Contexto do projeto
 
-Este arquivo apresenta as decisões estáveis. O estado operacional e as evidências
-estão em [docs/WORK_SUMMARY.md](docs/WORK_SUMMARY.md). Ambos devem ser atualizados
-quando houver mudanças relevantes; o Git é a referência para commits e tags.
+[Início](README.md) · [Documentação](docs/README.md) · [Roadmap](ROADMAP.md) · [Retomar o trabalho](docs/WORK_SUMMARY.md)
+
+Este documento reúne decisões estáveis. O estado operacional e as evidências
+ficam no [resumo de trabalho](docs/WORK_SUMMARY.md); mudanças por versão, no
+[changelog](CHANGELOG.md). Consulte o Git para confirmar branch, commits e tags.
 
 ## Objetivo e escopo
 
 Criar uma base multiplayer para Pokémon Emerald no port nativo C/SDL2 de
-`gradenGnostic/pokeemerald-multiplatform`, inicialmente no Linux. Jogadores devem
-conectar por ENet e enxergar outros jogadores no mesmo mapa do overworld.
-O objetivo imediato é uma build funcional; mudanças de gameplay, QoL, chat,
-batalhas e trocas ficam para etapas futuras, conforme [ROADMAP.md](ROADMAP.md).
+[gradenGnostic/pokeemerald-multiplatform](https://github.com/gradenGnostic/pokeemerald-multiplatform),
+inicialmente no Linux. Jogadores devem conectar por ENet e enxergar outros
+jogadores no mesmo mapa do overworld.
 
-O repositório de trabalho é `tamydb/pokeemerald-mp`. Seu checkout original contém
-a decompilação GBA, não o port SDL2. Por isso o port foi preparado separadamente
-em `build/linux-port`, a partir de uma revisão fixa do upstream. Não substituir
-a raiz pelo port nem pressupor que o Makefile GBA gera um executável de PC.
+A prioridade é uma build funcional e reproduzível. Chat, batalhas, trocas e
+melhorias de qualidade de vida dependem da validação dessa base e estão no roadmap.
 
-## Restrições definidas pelo usuário
+## Restrições acordadas
 
-- **Não publicar o jogo compilado no GitHub.** Publicar apenas fontes,
-  ferramentas de recompilação, testes e documentação.
-- ROM, saves, chaves, credenciais, builds e pacotes locais não entram no Git,
-  em GitHub Releases ou em uploads de artefatos CI.
-- Os pacotes em `build/releases` são exclusivamente locais. Tags representam
-  checkpoints de fontes, não autorização de distribuição de binários.
-- Documentar decisões, justificativas, alternativas relevantes e evidências.
-  Não substituir evidência por suposição de funcionamento.
-- Preparar testes para as features e salvar checkpoints após validação.
-- Priorizar a base funcional antes de novas mecânicas ou QoL.
+| Regra | Aplicação |
+| --- | --- |
+| Publicar somente fontes, ferramentas, testes e documentação | Não enviar ROM, jogo compilado, saves ou pacotes locais ao GitHub, Releases ou artefatos CI |
+| Preservar a privacidade do endpoint | IP e porta reais ficam em configuração local ignorada; modelos públicos têm campos vazios |
+| Registrar evidências | Distinguir implementação, resultado observado e validação pendente |
+| Validar antes de fechar marcos | Preparar testes pertinentes e salvar checkpoints após validação |
+| Preservar o trabalho existente | Não substituir a raiz pelo port nem usar reset destrutivo para experimentar versões |
 
-Política completa: [docs/distribution.md](docs/distribution.md).
+Política completa: [distribuição e privacidade](docs/distribution.md).
 
-## Arquitetura
+## Organização e build
 
-- ENet 1.3.18 incorporado em `src/net/enet` e `include/net/enet`, licença preservada.
-- Protocolo atual **2**, structs packed e inteiros multibyte em big endian.
-- Canal 0: posições sem retransmissão; cliente envia a cada 50 ms no overworld.
-- Canal 1: HELLO, WELCOME, JOIN e LEAVE confiáveis.
-- JOIN estabelece os membros cujas posições são aceitas. LEAVE remove a permissão,
-  impedindo que UDP atrasado recrie um jogador desconectado.
-- Relay atribui IDs sem reutilização durante sua execução e repete snapshots.
-- Sequência u32 usa aritmética serial para descartar duplicatas e pacotes antigos,
-  incluindo rollover.
-- O cliente altera Object Events apenas na thread existente do jogo. Polling
-  com `enet_host_service(..., 0)` em CB2_Overworld, sem thread de rede adicional.
-- O port já possuía uma thread SDL para AgbMain. A integração usa essa thread;
-  shutdown ocorre nela, com sinalizador atômico e saída setjmp/longjmp no VBlank.
-- Remotos usam IDs locais 240–247, sprite Brendan e reposicionamento por tile,
-  somando MAP_OFFSET às coordenadas recebidas. Ainda não há interpolação.
-- O servidor limita oito conexões totais; não executa gameplay nem carrega ROM/save.
+O repositório de trabalho é `TamyDB/pokeemerald-mp`. A raiz contém a decompilação
+GBA, não o port SDL2. O port é preparado separadamente em `build/linux-port`, a
+partir de uma revisão fixa. `build/` é ignorado pelo Git e precisa ser recriado
+em uma nova máquina por `scripts/prepare_linux.py`.
 
-Referências: [protocolo](docs/multiplayer.md), [servidor](docs/server.md),
-[registro de decisões](docs/multiplayer-decisions.md).
+O `Makefile_pc` da raiz compila rede, servidor e testes. O jogo Linux completo é
+compilado por `scripts/build_linux.sh` no port preparado. O port exige ponteiros
+de 32 bits: manter `-m32`; não migrar para 64 bits como ajuste incidental.
+No Fedora 44, a API SDL2 é fornecida por `sdl2-compat-devel.i686`.
 
-## Builds e dependências externas
+| Referência fixa | Revisão |
+| --- | --- |
+| Port SDL2 | `db1cab3d2dc9f0e0a9f4a3d67983e5acf30a9a46` |
+| ENet 1.3.18 | `2662c0de09e36f2a2030ccc2c528a3e4c9e8138a` |
+| SHA-1 da ROM suportada | `f3ae088181bf583e55daf962a92bb46f4f1d07b7` |
 
-O port usa ponteiros de 32 bits: manter `-m32`. Não tentar migrar para 64 bits
-como ajuste incidental. No Fedora 44, SDL2 é oferecido por `sdl2-compat-devel.i686`.
 A ROM local apenas confirma a revisão suportada; o executável vem dos fontes.
+Preparação e dependências: [guia Linux](docs/linux-playable.md).
 
-Revisões fixas:
+## Arquitetura acordada
 
-- Port SDL2: `db1cab3d2dc9f0e0a9f4a3d67983e5acf30a9a46`.
-- ENet: `2662c0de09e36f2a2030ccc2c528a3e4c9e8138a`.
-- SHA-1 da ROM suportada: `f3ae088181bf583e55daf962a92bb46f4f1d07b7`.
+| Componente | Contrato |
+| --- | --- |
+| Protocolo | Versão 2, structs packed, inteiros multibyte em big endian |
+| Canal 0 | Posições sem retransmissão, enviadas a cada 50 ms no overworld |
+| Canal 1 | HELLO, WELCOME, JOIN e LEAVE confiáveis |
+| Presença | JOIN autoriza posições; LEAVE remove a permissão, impedindo recriação por UDP atrasado |
+| Relay | Até oito conexões totais, IDs sem reutilização durante a execução e snapshots repetidos; sem gameplay, ROM ou save |
+| Sequência | u32 com aritmética serial para descartar duplicatas e estado antigo, inclusive rollover |
+| Thread do jogo | Polling não bloqueante em CB2_Overworld; Object Events alterados na thread existente |
+| Encerramento SDL | Sinalizador atômico e saída setjmp/longjmp no VBlank da thread do jogo |
+| Remotos | IDs locais 240–247, sprite Brendan, posição por tile com MAP_OFFSET; sem interpolação |
 
-`build/` é ignorado pelo Git. Em uma nova máquina, reconstruir o port com
-`scripts/prepare_linux.py`, sem depender da existência da pasta atual.
-Instruções: [docs/linux-playable.md](docs/linux-playable.md).
+ENet é incorporado em `src/net/enet` e `include/net/enet`, com licença preservada.
+O port já possui uma thread SDL para AgbMain; a integração não cria outra thread
+de rede. Detalhes: [protocolo](docs/multiplayer.md), [servidor](docs/server.md) e
+[decisões técnicas](docs/multiplayer-decisions.md).
 
-## Versionamento e retomada
+## Conexão e direção do produto
 
-Branch de implementação: `multiplayer/initial-linux`. Checkpoints:
+A VM atual atende aos testes iniciais com amigos. Seu endereço não deve se tornar
+uma dependência fixa do produto. O launcher exige IPv4 e porta em
+`config/multiplayer.env`, local e ignorado pelo Git, ou nas variáveis de ambiente.
+O menu Multiplayer para editar, conectar, desconectar e lembrar preferências é
+uma proposta de backlog.
 
-- `v0.1.0-alpha.1`: base, servidor instalado e testes locais/na VM.
-- `v0.1.0-alpha.2`: validação pública x86_64/i386; mesmo executável da alpha.1.
-- `v0.1.0-alpha.3`: IP/porta via arquivo local, campos vazios no modelo público
-  e histórico de implementação sanitizado para remover endpoint privado.
+## Checkpoints e publicação
 
-Commits posteriores podem atualizar documentação sem alterar VERSION ou criar
-uma nova tag. Consultar `git status`, `git log` e as tags antes de modificar algo.
-Preservar mudanças do usuário. Para experimentar checkpoints antigos, preferir
-worktree/branch separado; não usar reset destrutivo.
+Branch de implementação: `multiplayer/initial-linux`. As tags alpha.1, alpha.2 e
+alpha.3 foram publicadas no GitHub após autorização e auditoria do histórico
+sanitizado; o master foi preservado. Não refazer a sanitização nem mover tags
+publicadas sem necessidade. Novas publicações devem seguir a política somente fontes.
 
-O branch `multiplayer/initial-linux` e as tags alpha.1/alpha.2/alpha.3 foram
-publicados no GitHub após autorização do usuário e auditoria do histórico
-sanitizado. O master foi preservado. Publicações futuras devem manter a política
-somente fontes/ferramentas e revisar o conteúdo preparado para envio.
+A versão declarada está em [VERSION](VERSION). Commits de documentação podem
+suceder uma tag sem alterar a versão. Consulte [CHANGELOG.md](CHANGELOG.md) e o
+[guia de versionamento](docs/versioning.md) para interpretar os checkpoints.
 
-## Próxima prioridade
+## Prioridade de retomada
 
-A rede pública já passou nos testes automatizados. Falta verificar **dois jogadores
-visíveis dentro do jogo**, mudança de mapa, saída, controles, áudio e save. Não
-marcar o primeiro marco completo até registrar essas evidências. Consulte o
-resumo operacional antes de repetir instalações ou alterar a VM.
-
-## Direção futura da conexão
-
-A VM atual atende aos testes iniciais com amigos. O usuário quer um menu
-Multiplayer no qual cada jogador configure IP e porta do servidor, com preferências
-locais. O endereço da VM não deve se tornar uma dependência fixa do produto.
-O menu está no backlog. O launcher já exige IP e porta pelo arquivo local
-`config/multiplayer.env`, ignorado pelo Git; o modelo vem com campos vazios.
-Não escrever o endpoint privado em arquivos ou históricos publicáveis.
+A rede pública passou nos testes automatizados. Falta verificar **dois jogadores
+visíveis no jogo**, movimento, mudança de mapa, saída, NPCs, controles, áudio e
+save. Não marcar o primeiro marco completo sem registrar essas evidências.
+Antes de repetir instalações ou alterar a VM, leia o [resumo atual](docs/WORK_SUMMARY.md).

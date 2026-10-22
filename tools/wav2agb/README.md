@@ -1,4 +1,11 @@
 # wav2agb
+
+[Documentação do projeto](../../docs/README.md) · [Instalação GBA](../../INSTALL.md)
+
+Referência da ferramenta de áudio herdada do upstream, mantida em inglês.
+O conteúdo abaixo descreve a ferramenta GBA, sem alterações funcionais nesta revisão.
+
+[Uso](#usage) · [Chunks de loop](#adding-agbl-chunk-to-wav-files)
 "wav2agb" is a tool to convert standard .wav files to GBA compatible .s or .bin files.  Intended to convert .wav files for the use with the mp2k/m4a sound driver.
 
 This copy has been slightly modified from [ipatix's original implementation](https://github.com/ipatix/wav2agb) in the following ways:
@@ -11,8 +18,9 @@ This copy has been slightly modified from [ipatix's original implementation](htt
    - This `agbl` chunk can be added to existing .wav files with the `--set-agbl` option (described below).
 4. Optionally omits trailing padding from compressed output.
 
-Usage:
-```
+## Usage
+
+```text
 Usage: wav2agb [options] <input.wav> [<output>]
 
 Options:

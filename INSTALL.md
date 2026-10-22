@@ -1,11 +1,30 @@
-# Instructions
+# Instalação GBA — referência upstream
+
+[Início](README.md) · [Documentação](docs/README.md) · [Build multiplayer Linux](docs/linux-playable.md)
+
+> **Escopo:** instruções herdadas para compilar a ROM GBA, mantidas em inglês.
+> Não são o procedimento de build do multiplayer C/SDL2 e não representam suporte
+> validado ao multiplayer em Windows ou macOS. Comandos e versões históricos do
+> upstream não foram revalidados nesta organização documental.
+
+## Navegação
+
+- [Windows](#windows)
+- [macOS](#macos)
+- [Linux](#linux)
+- [Instalação das ferramentas do projeto](#installation)
+- [Compilar a ROM](#build-pokeemerald)
+- [Orientações de build](#building-guidance)
+- [Ferramentas adicionais](#useful-additional-tools)
+
+## Sobre estas instruções
 
 These instructions explain how to set up the tools required to build **pokeemerald**, which assembles the source files into a ROM.
 
 These instructions come with notes which can be expanded by clicking the "<i>Note...</i>" text.
 In general, you should not need to open these unless if you get an error or if you need additional clarification.
 
-If you run into trouble, ask for help on Discord or IRC (see [README.md](README.md)).
+For this project’s current scope and documentation, see the [project README](README.md) and [documentation index](docs/README.md).
 
 ## Windows
 Windows has instructions for building with three possible terminals, providing 3 different options in case the user stumbles upon unexpected errors.
@@ -485,9 +504,9 @@ If it has built successfully you will have the output file **pokeemerald.gba** i
 > If you switched terminals since the last build (e.g. from msys2 to WSL1), you must run `make clean-tools` once before any subsequent `make` commands.
 </details>
 
-# Building guidance
+## Building guidance
 
-## Parallel builds
+### Parallel builds
 
 See [the GNU docs](https://www.gnu.org/software/make/manual/html_node/Parallel.html) and [this Stack Exchange thread](https://unix.stackexchange.com/questions/208568) for more information.
 
@@ -503,7 +522,7 @@ Replace `<output of nproc>` with the number that the `nproc` command returned.
 
 `nproc` is not available on macOS. The alternative is `sysctl -n hw.ncpu` ([relevant Stack Overflow thread](https://stackoverflow.com/questions/1715580)).
 
-## Compare ROM to the original
+### Compare ROM to the original
 
 For contributing, or if you'd simply like to verify that your ROM is identical to the original game, run:
 ```bash
@@ -519,14 +538,14 @@ pokeemerald.gba: FAILED
 shasum: WARNING: 1 computed checksum did NOT match
 ```
 
-## devkitARM's C compiler
+### devkitARM's C compiler
 
 This project supports the `arm-none-eabi-gcc` compiler included with devkitARM. If devkitARM (a.k.a. gba-dev) has already been installed as part of the platform-specific instructions, simply run:
 ```bash
 make modern
 ```
 Otherwise, follow the instructions below to install devkitARM.
-### Installing devkitARM on WSL1
+#### Installing devkitARM on WSL1
 
 1. `gdebi-core` must be installed beforehand in order to install devkitPro pacman (which facilitates the installation of devkitARM). Install this with the following command:
 
@@ -569,7 +588,7 @@ Otherwise, follow the instructions below to install devkitARM.
 
 devkitARM is now installed.
 
-### Installing devkitARM on Debian/Ubuntu-based distributions
+#### Installing devkitARM on Debian/Ubuntu-based distributions
 1. If `gdebi-core` is not installed, run the following command:
 
     ```bash
@@ -595,7 +614,7 @@ devkitARM is now installed.
 
 devkitARM is now installed.
 
-### Installing devkitARM on Arch Linux
+#### Installing devkitARM on Arch Linux
 
 1. Follow [devkitPro's instructions](https://devkitpro.org/wiki/devkitPro_pacman#Customising_Existing_Pacman_Install) to configure `pacman` to download devkitPro packages.
 2. Install `gba-dev`: run the following command as root.
@@ -613,7 +632,7 @@ devkitARM is now installed.
 
 devkitARM is now installed.
 
-### Other toolchains
+#### Other toolchains
 
 To build using a toolchain other than devkitARM, override the `TOOLCHAIN` environment variable with the path to your toolchain, which must contain the subdirectory `bin`.
 ```bash
@@ -625,7 +644,7 @@ make TOOLCHAIN="/usr/local/arm-none-eabi"
 ```
 To compile the `modern` target with this toolchain, the subdirectories `lib`, `include`, and `arm-none-eabi` must also be present.
 
-### Building with debug info under a modern toolchain
+#### Building with debug info under a modern toolchain
 
 To build **pokeemerald.elf** with debug symbols under a modern toolchain:
 ```bash
@@ -633,7 +652,7 @@ make modern DINFO=1
 ```
 Note that this is not necessary for a non-modern build since those are built with debug symbols by default.
 
-# Useful additional tools
+## Useful additional tools
 
 * [porymap](https://github.com/huderlem/porymap) for viewing and editing maps
 * [poryscript](https://github.com/huderlem/poryscript) for scripting ([VS Code extension](https://marketplace.visualstudio.com/items?itemName=karathan.poryscript))

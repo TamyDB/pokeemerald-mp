@@ -1,8 +1,17 @@
-# Multiplayer ENet: integração inicial
+# Protocolo e integração multiplayer
+
+[Início](../README.md) · [Documentação](README.md) · [Servidor](server.md) · [Decisões](multiplayer-decisions.md)
 
 Este checkout contém o jogo GBA, sem o port SDL2. `Makefile_pc` compila
 uma biblioteca estática da camada de rede, não um executável do jogo.
 O Makefile GBA exclui `src/net` para não incorporar sockets à ROM.
+
+## Navegação
+
+- [Compilar e conectar](#compilar-e-conectar)
+- [Contrato do servidor](#contrato-do-servidor-protocolo-2)
+- [Verificação](#verificação)
+- [Dependência](#dependência)
 
 ## Compilar e conectar
 
@@ -12,8 +21,12 @@ Para Windows use um compilador MinGW e `PLATFORM=windows`; para Android use
 Clang do NDK e `PLATFORM=android`. Windows e Android ainda não foram testados.
 As opções de sockets estão em `LDLIBS` e precisam ser usadas no link final.
 
-No port, compile também o jogo com `-DMULTIPLAYER` e vincule a biblioteca.
-Na thread principal, após carregar o save, chame
+A integração Linux reproduzível é aplicada por `scripts/prepare_linux.py`; siga
+o [guia Linux](linux-playable.md) para usá-la. O hook usa
+`InitNetworkClientFromEnvironment` na primeira entrada no overworld.
+
+Para integrar outro port manualmente, compile também o jogo com `-DMULTIPLAYER` e vincule a biblioteca.
+Na thread do jogo, após carregar o save, chame
 `InitNetworkClient(enderecoConfigurado, portaConfigurada)`. O retorno indica início da tentativa;
 o handshake termina de forma assíncrona. Endereços são IPv4 numéricos para
 não bloquear com DNS. `CB2_Overworld` chama `UpdateNetworkClient`.
@@ -40,7 +53,8 @@ a novos participantes e impedir que posições antigas atravessem um evento
 de saída. Os dois canais têm ordenação independente. O servidor agora está em
 `server/main.c`; compilação e operação em [server.md](server.md).
 
-Há até oito jogadores remotos, limitados também pelos Object Events livres.
+O cliente possui até oito slots remotos, limitados também pelos Object Events
+livres. O relay aceita oito conexões totais, incluindo o jogador local.
 IDs locais 240–247 são reservados; conflitos existentes não são sobrescritos.
 A posição usa coordenadas do save, somando `MAP_OFFSET` apenas ao aplicar
 nos Object Events. Sprites usam Brendan e são reposicionados por tile;
@@ -51,7 +65,7 @@ confiável já é usado para handshake e saída.
 
 ## Verificação
 
-```
+```bash
 make -f Makefile_pc network
 make -f Makefile_pc test-network
 ```
@@ -62,7 +76,7 @@ rollover, troca de mapa e preservação de NPCs. Não substitui testes no jogo.
 ## Dependência
 
 ENet 1.3.18, commit `2662c0de09e36f2a2030ccc2c528a3e4c9e8138a`,
-obtido de https://github.com/lsalzman/enet. Fontes e headers sem alterações;
+obtido do [repositório ENet](https://github.com/lsalzman/enet). Fontes e headers sem alterações;
 licença MIT preservada em `src/net/enet/LICENSE`.
 
 As decisões técnicas e a cobertura dos testes são registradas em
