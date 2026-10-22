@@ -100,3 +100,7 @@ git worktree add ../pokeemerald-checkpoint v0.1.0-alpha.1
 ```
 
 As tags e commits foram criados localmente. Não houve push para o remoto.
+
+O pacote descrito acima é **exclusivamente local**. Não deve ser enviado ao GitHub
+como commit, release ou artefato CI. A distribuição do projeto disponibiliza
+somente as ferramentas/fontes para recompilar: [política](distribution.md).

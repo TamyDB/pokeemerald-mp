@@ -51,3 +51,12 @@ __pycache__/
 *.pyc
 core
 core.*
+
+# Compiled game distributions are local only; never publish to GitHub.
+/pokeemerald
+/dist/
+/releases/
+*.tar.gz
+*.AppImage
+*.deb
+*.rpm

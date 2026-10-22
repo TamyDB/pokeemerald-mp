@@ -189,3 +189,11 @@ A alteração desta versão é de status, documentação e VERSION; não há mud
 protocolo ou executável. A tag anterior permanece preservada. A comunicação
 pública foi comprovada, mas os callbacks de sincronização no teste ainda são
 simulados: não equivale a observar dois jogadores renderizados no jogo.
+
+### Política de distribuição definida pelo usuário
+
+O usuário determinou que o jogo compilado não pode ser publicado no GitHub;
+apenas fontes e ferramentas de recompilação. Pacotes gerados são estritamente
+locais. A política está em distribution.md e as exclusões de artefatos foram
+ampliadas. O CI existente foi inspecionado: não há upload de ROM/jogo como
+artefato ou release. Nenhum pacote/executável foi publicado nesta sessão.

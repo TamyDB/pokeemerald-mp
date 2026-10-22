@@ -16,3 +16,6 @@ Status e próximas entregas: [ROADMAP.md](ROADMAP.md).
 Build Linux: [docs/linux-playable.md](docs/linux-playable.md).
 Servidor ENet e testes: [docs/server.md](docs/server.md).
 Decisões e evidências: [docs/multiplayer-decisions.md](docs/multiplayer-decisions.md).
+
+Distribuição no GitHub: **somente fontes e ferramentas de recompilação**.
+Builds do jogo permanecem locais; veja [a política](docs/distribution.md).
