@@ -158,3 +158,11 @@ tag e reconstruir ali; o empacotador exige que a tag corresponda ao HEAD.
 Limites conhecidos: sem reconexão automática, polling suspenso em menus/batalhas,
 sprite Brendan por tile, sem interpolação, chat, batalhas ou trocas. Não ampliar
 o escopo silenciosamente. Atualizar este resumo e o roadmap após mudanças relevantes.
+
+## Guia de execução atualizado
+
+O README principal agora ensina execução imediata, controles, recompilação,
+testes automatizados e teste visual com dois jogadores. O bloco de teste manual
+cria diretórios únicos em `build/playtests` e logs separados, preservando o save
+da build normal. Os links locais e a sintaxe dos blocos Bash foram verificados.
+Não houve nova validação visual; esse é o próximo teste a realizar com o usuário.
