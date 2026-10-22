@@ -81,9 +81,25 @@ validação visual de dois jogadores no jogo.
 | Remapear controles | Proposto | Avaliar recursos existentes do port antes de implementar |
 | Indicadores de mapa e presença dos amigos | Proposto | Facilitar encontros sem alterar a progressão |
 | Preferências de áudio e interface | Proposto | Avaliar o que o port já oferece e validar nesta build |
+| Novas opções de configuração | Proposto | Levantar opções desejadas, verificar as já existentes e definir persistência e valores padrão antes de implementar |
+| Nomes próprios com inicial maiúscula | Proposto | Substituir caixa alta nos textos exibidos, por exemplo BRENDAN → Brendan; revisar nomes compostos, exceções e nomes definidos pelo jogador |
 | Backup de saves e perfis separados | Proposto | Facilitar testes e recuperação do progresso |
 | Distribuição Linux mais simples | Proposto | Avaliar pacote portátil após estabilizar dependências |
 | Android e Windows com multiplayer | Proposto | Exigem compilação e testes próprios; ainda não validados |
+
+### To-do de configurações e textos
+
+- [ ] Definir com o usuário quais novas opções entrarão no menu de configurações.
+- [ ] Auditar configurações existentes do port para evitar duplicação.
+- [ ] Definir valores padrão, persistência por perfil e comportamento ao restaurar padrões.
+- [ ] Levantar ocorrências de nomes próprios em caixa alta nos textos do jogo.
+- [ ] Padronizar a exibição para inicial maiúscula e demais letras minúsculas,
+  revisando nomes compostos e exceções antes de aplicar conversão automática.
+- [ ] Preservar identificadores internos, códigos de controle e a grafia escolhida
+  pelo jogador para nomes/apelidos; não alterar saves sem uma decisão específica.
+- [ ] Verificar diálogos, menus e quebras de linha após as alterações de texto.
+
+Esses itens foram solicitados para uma etapa futura e ainda não foram implementados.
 
 ## Fluxo de versionamento
 

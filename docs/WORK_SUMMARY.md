@@ -166,3 +166,12 @@ testes automatizados e teste visual com dois jogadores. O bloco de teste manual
 cria diretórios únicos em `build/playtests` e logs separados, preservando o save
 da build normal. Os links locais e a sintaxe dos blocos Bash foram verificados.
 Não houve nova validação visual; esse é o próximo teste a realizar com o usuário.
+
+## Novos itens de backlog solicitados
+
+O usuário solicitou registrar, sem implementar nesta etapa, novas opções de
+configuração (lista específica ainda a definir) e mudança dos nomes próprios
+exibidos em caixa alta para inicial maiúscula, como BRENDAN → Brendan. O roadmap
+inclui levantamento, persistência das configurações, revisão de nomes compostos
+e verificação visual dos textos. Preservar nomes escolhidos pelo jogador,
+identificadores internos e saves até existir uma decisão específica.
